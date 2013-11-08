@@ -1,7 +1,7 @@
-Where to Get Help
+Where to get Help
 #################
 
-The Official CakePHP website
+The Official CakePHP Website
 ============================
 
 `http://www.cakephp.org <http://www.cakephp.org>`_
@@ -54,10 +54,10 @@ data member usage for a class.::
 
     lib/Cake/Test/Case
 
-The IRC channel
+The IRC Channel
 ===============
 
-**IRC Channels on irc.freenode.net:**
+**IRC channels on irc.freenode.net:**
 
 
 -  `#cakephp <irc://irc.freenode.net/cakephp>`_ -- General
