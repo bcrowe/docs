@@ -1473,7 +1473,7 @@ plural, camel cased version the association name. For example::
 When converting request data into entities, the ``newEntity`` and
 ``newEntities`` methods will handle both arrays of properties, as well as a list
 of ids at the ``_ids`` key. Using the ``_ids`` key makes it easy to build a 
-select box or checkbox based form controls for belongs to many associations. See
+select box or checkbox based form controls for BelongsToMany associations. See
 the :ref:`converting-request-data` section for more information.
 
 When saving belongsToMany associations, you have the choice between 2 saving
