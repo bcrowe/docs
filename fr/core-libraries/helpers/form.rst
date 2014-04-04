@@ -1,7 +1,7 @@
 FormHelper
 ##########
 
-.. php:class:: FormHelper(View $view, array $settings = array())
+.. php:class:: FormHelper(View $view, array $config = array())
 
 Le Helper Form prend en charge la plupart des opérations lourdes
 en création du formulaire. Le Helper Form se concentre sur la
@@ -81,8 +81,9 @@ pleinement avantage du Helper Form (Helper Formulaire) est
         }
 
         // View/Recipes/edit.ctp:
-        // Puisque $this->request->data['Recipe']['id'] = 5, nous aurons un formulaire d'édition
-        echo $this->Form->create('Recipe');
+        // Puisque $this->request->data['Recipe']['id'] = 5,
+        // nous aurons un formulaire d'édition
+        <?php echo $this->Form->create('Recipe'); ?>
 
     Affichera:
 
@@ -99,14 +100,14 @@ pleinement avantage du Helper Form (Helper Formulaire) est
     A la création de formulaires pour les models dans des plugins. Nous
     devrons toujours utiliser la notation :term:`plugin syntax` à la création
     d'un formulaire. Cela assurera que le formulaire est correctement généré::
-    
+
         echo $this->Form->create('ContactManager.Contact');
 
     Le tableau ``$options`` est l'endroit où la plupart des paramètres
     de configurations sont stockés. Ce tableau spécial peut contenir
     un certain nombre de paires clé-valeur qui peuvent affecter la
     manière dont le formulaire sera créé.
-    
+
     .. versionchanged:: 2.0
 
     L'Url par défaut pour tous les formulaires, est maintenant l'Url
@@ -114,7 +115,7 @@ pleinement avantage du Helper Form (Helper Formulaire) est
     pouvez redéfinir cette valeur par défaut en fournissant
     ``$options['url']`` en second paramètre de ``$this->Form->create()``.
 
-Options pour  create() 
+Options pour  create()
 -----------------------
 
 Il y plusieurs options pour create():
@@ -133,20 +134,21 @@ Il y plusieurs options pour create():
     .. code-block:: html
 
         <form id="UserAddForm" method="get" action="/users/add">
-    
+
     En spécifiant 'file' cela changera la méthode de soumission à 'post', et
     ajoutera un enctype "multipart/form-data" dans le tag du formulaire.
     Vous devez l'utiliser si vous avez des demandes de fichiers dans
     votre formulaire. L'absence de cet attribut enctype empêchera le
     fonctionnement de l'envoi de fichiers.::
- 
+
         echo $this->Form->create('User', array('type' => 'file'));
 
     Affichera:
 
     .. code-block:: html
 
-      <form id="UserAddForm" enctype="multipart/form-data" method="post" action="/users/add">
+     <form id="UserAddForm" enctype="multipart/form-data"
+        method="post" action="/users/add">
 
     Quand vous utilisez 'put' ou 'delete', votre formulaire aura un
     fonctionnement équivalent à un formulaire de type 'post',
@@ -224,13 +226,15 @@ Il y plusieurs options pour create():
     redéfinir le defaultOptions en déclarant l'option dans
     l'appel input()::
 
-        echo $this->Form->input('password'); // Pas de div, Pas de label
-        echo $this->Form->input('username', array('label' => 'Username')); // a un élément label 
+        // Pas de div, Pas de label
+        echo $this->Form->input('password');
+        // a un élément label 
+        echo $this->Form->input('username', array('label' => 'Username'));
 
 Fermer le Formulaire
 ====================
 
-.. php:method:: end($options = null)
+.. php:method:: end($options = null, $secureAttributes = array())
 
     Le FormHelper inclut également une méthode ``end()`` qui
     complète le marquage du formulaire. Souvent, ``end()`` affiche juste
@@ -249,7 +253,7 @@ Fermer le Formulaire
     Si une chaîne est fournie comme premier argument à end(), le FormHelper
     affichera un bouton submit nommé en conséquence en même temps
     que la balise de fermeture du formulaire.::
-   
+
         echo $this->Form->end('Termine');
 
     Affichera:
@@ -278,13 +282,17 @@ Fermer le Formulaire
 
         <div class="glass-pill"><input type="submit" value="Update!" name="Update"></div>
 
-    Voir l'`API <http://api20.cakephp.org>`_ pour plus de détails.
+    Voir `l'API du Helper Form
+    <http://api.cakephp.org/2.4/class-FormHelper.html>`_ pour plus de détails.
 
     .. note::
 
         si vous utilisez le component sécurité  :php:class:`SecurityComponent`
         dans votre application vous devez toujours terminer vos formulaires
         avec  ``end()``.
+
+    .. versionchanged:: 2.5
+        Le paramètre ``$secureAttributes`` a été ajouté dans 2.5.
 
 .. _automagic-form-elements:
 
@@ -327,15 +335,20 @@ ce champ. En interne ``input()`` délègue aux autre méthode du FormHelper.
         day, month, year, hour, minute, et meridian selects
     time
         hour, minute, et meridian selects
+    binary
+        file
 
     Le paramètre ``$options`` vous permet de personnaliser le
     fonctionnement de ``input()``, et contrôle finement ce qui est généré.
-    
+
     Le div entourant aura un nom de classe ``required`` ajouté à la suite si
     les règles de validation pour le champ du Model ne spécifient pas
     ``allowEmpty => true``. Une limitation de ce comportement est que le champ
     du model doit avoir été chargé pendant la requête. Ou être directement
     associé au model fourni par :php:meth:`~FormHelper::create()`.
+
+    .. versionadded:: 2.5
+        Le type binaire mappe maintenant vers un input de fichier.
 
     .. versionadded:: 2.3
 
@@ -356,14 +369,20 @@ ce champ. En interne ``input()`` délègue aux autre méthode du FormHelper.
    Vous pouvez utiliser la méthode input() de l'Helper Formulaire (Formhelper)
    pour créer une entrée appropriée pour tous les champs du formulaire.::
 
-        echo $this->Form->create();
+       echo $this->Form->create();
+       // text
+       echo $this->Form->input('username');
 
-        echo $this->Form->input('username');   //text
-        echo $this->Form->input('password');   //password
-        echo $this->Form->input('approved');   //day, month, year, hour, minute, meridian
-        echo $this->Form->input('quote');      //textarea
+       // password
+       echo $this->Form->input('password');
 
-        echo $this->Form->end('Add');
+       // day, month, year, hour, minute, meridian
+       echo $this->Form->input('approved');
+
+       //textarea
+       echo $this->Form->input('quote');
+
+       echo $this->Form->end('Add');
 
     Un exemple plus complet montrant quelques options pour le champ de date ::
 
@@ -394,7 +413,7 @@ ce champ. En interne ``input()`` délègue aux autre méthode du FormHelper.
     Si vous voulez un champ de sélection utilisant une relation belongsTo
     ou hasOne, vous pouvez ajouter ceci dans votre controller Users
     (en supposant que l'User belongsTo Group)::
-   
+
         $this->set('groups', $this->User->Group->find('list'));
 
     Ensuite, ajouter les lignes suivantes à votre vue de formulaire::
@@ -408,19 +427,23 @@ ce champ. En interne ``input()`` délègue aux autre méthode du FormHelper.
 
         $this->set('userGroups', $this->UserGroup->find('list'));
         // ou bien
-        $this->set('reallyInappropriateModelNames', $this->ReallyInappropriateModelName->find('list'));
+        $this->set(
+            'reallyInappropriateModelNames',
+            $this->ReallyInappropriateModelName->find('list')
+        );
 
     .. note::
 
         Essayez d'éviter l'utilisation de `FormHelper::input()` pour générer
         les boutons submit. Utilisez plutôt :php:meth:`FormHelper::submit()`.
-     
+
 .. php:method:: inputs(mixed $fields = null, array $blacklist = null)
 
     Génère un ensemble d'inputs (entrées) pour ``$fields``. Si $fields est
-    null, le model courant sera utilisé.
+    null, tous les champs, sauf ceux définis dans ``$blacklist``, du model
+    courant seront utilisés.
 
-    En plus de l' affichage des champs de controller, ``$fields`` peut
+    En plus de l'affichage des champs de controller, ``$fields`` peut
     être utilisé pour contrôler legend et fieldset (jeu de champs) rendus
     avec les clés ``fieldset`` et ``legend``.
     ``$form->inputs(array('legend' => 'Ma légende'));``
@@ -472,16 +495,17 @@ Affichera:
 
 .. code-block:: html
 
-    <input type="text" id="Modelname0Fieldname" name="data[Modelname][0][fieldname]">
-    <input type="text" id="Modelname1Fieldname" name="data[Modelname][1][fieldname]">
+    <input type="text" id="Modelname0Fieldname"
+        name="data[Modelname][0][fieldname]">
+    <input type="text" id="Modelname1Fieldname"
+        name="data[Modelname][1][fieldname]">
 
-Le Helper Form utilise plusieurs suffixes de champ en interne pour la
-création de champ input datetime.
-Si vous utilisez des champs nommés
-``year``, ``month``, ``day``, ``hour``, ``minute``, or ``meridian`` et
-rencontrez des problèmes pour obtenir un input correct, vous pouvez définir
-le nom ``name`` de l'attribut pour remplacer le behavior par
-défaut::
+
+Le Helper Form utilise plusieurs suffixes de champ en interne pour la création
+de champ input datetime.  Si vous utilisez des champs nommés ``year``,
+``month``, ``day``, ``hour``, ``minute``, or ``meridian`` et rencontrez des
+problèmes pour obtenir un input correct, vous pouvez définir le nom ``name`` de
+l'attribut pour remplacer le behavior par défaut::
 
     echo $this->Form->input('Model.year', array(
         'type' => 'text',
@@ -500,7 +524,7 @@ comme les attributs html. Ce qui suit va couvrir les options spécifiques de
     l'introspection du model, en spécifiant un type. En plus des types de
     champs vus dans :ref:`automagic-form-elements`, vous pouvez aussi créez
     des 'fichiers', 'password' et divers types supportés par HTML5::
-    
+
         echo $this->Form->input('field', array('type' => 'file'));
         echo $this->Form->input('email', array('type' => 'email'));
 
@@ -508,240 +532,247 @@ comme les attributs html. Ce qui suit va couvrir les options spécifiques de
 
     .. code-block:: html
 
-        <div class="input file">
-            <label for="UserField">Field</label>
-            <input type="file" name="data[User][field]" value="" id="UserField" />
-        </div>
-        <div class="input email">
-            <label for="UserEmail">Email</label>
-            <input type="email" name="data[User][email]" value="" id="UserEmail" />
-        </div>
+      echo $this->Form->input('field', array('type' => 'file'));
+      echo $this->Form->input('email', array('type' => 'email'));
 
-*   ``$options['div']`` Utilisez cette option pour définir les attributs de la
-    div contentant l'input. En utilisant une valeur chaîne configurera le nom
-    de classe de la div. Un tableau clés/valeurs paramétrera les attributs de
-    la div. Alternativement, vous pouvez définir cet clé à false pour
-    désactiver le rendu de la div.
+  Affichera:
 
-    Définir le nom de classe::
+  .. code-block:: html
 
-        echo $this->Form->input('User.name', array(
-            'div' => 'class_name'
-        ));
+      <div class="input file">
+          <label for="UserField">Field</label>
+          <input type="file" name="data[User][field]" value="" id="UserField" />
+      </div>
+      <div class="input email">
+          <label for="UserEmail">Email</label>
+          <input type="email" name="data[User][email]" value="" id="UserEmail" />
+      </div>
 
-    Affichera:
+* ``$options['div']`` Utilisez cette option pour définir les attributs de la
+  div contentant l'input. En utilisant une valeur chaîne configurera le nom
+  de classe de la div. Un tableau clés/valeurs paramétrera les attributs de
+  la div. Alternativement, vous pouvez définir cet clé à false pour
+  désactiver le rendu de la div.
 
-    .. code-block:: html
+  Définir le nom de classe::
 
-        <div class="class_name">
-            <label for="UserName">Name</label>
-            <input name="data[User][name]" type="text" value="" id="UserName" />
-        </div>
+      echo $this->Form->input('User.name', array(
+          'div' => 'class_name'
+      ));
 
-    Paramétrage de plusieurs attibuts::
+  Affichera:
 
-        echo $this->Form->input('User.name', array(
-            'div' => array(
-              'id' => 'mainDiv',
-             'title' => 'Div Title',
-               'style' => 'display:block'
-         )
-        ));
+  .. code-block:: html
 
-    Affichera:
+      <div class="class_name">
+          <label for="UserName">Name</label>
+          <input name="data[User][name]" type="text" value="" id="UserName" />
+      </div>
 
-    .. code-block:: html
+  Paramétrage de plusieurs attibuts::
 
-        <div class="input text" id="mainDiv" title="Div Title" style="display:block">
-            <label for="UserName">Name</label>
-            <input name="data[User][name]" type="text" value="" id="UserName" />
-        </div>
+      echo $this->Form->input('User.name', array(
+          'div' => array(
+            'id' => 'mainDiv',
+           'title' => 'Div Title',
+             'style' => 'display:block'
+       )
+      ));
 
-    Désactiver le rendu de la div ::
+  Affichera:
 
-        echo $this->Form->input('User.name', array('div' => false)); ?>
+  .. code-block:: html
 
-    Affichera:
+      <div class="input text" id="mainDiv" title="Div Title"
+          style="display:block">
+          <label for="UserName">Name</label>
+          <input name="data[User][name]" type="text" value="" id="UserName" />
+      </div>
 
-    .. code-block:: html
+  Désactiver le rendu de la div ::
 
-        <label for="UserName">Name</label>
-        <input name="data[User][name]" type="text" value="" id="UserName" />
+      echo $this->Form->input('User.name', array('div' => false)); ?>
 
 *   ``$options['label']`` Définissez cette clé à la chaîne que vous voudriez
     afficher dans le label qui accompagne le input::
-    
+
         echo $this->Form->input('User.name', array(
             'label' => 'Alias de l'user'
         ));
 
-    Affichera:
+  .. code-block:: html
 
-    .. code-block:: html
+      <label for="UserName">Name</label>
+      <input name="data[User][name]" type="text" value="" id="UserName" />
 
-        <div class="input">
-            <label for="UserName">Alias de l'user</label>
-            <input name="data[User][name]" type="text" value="" id="UserName" />
-        </div>
+* ``$options['label']`` Définissez cette clé à la chaîne que vous voudriez
+  afficher dans le label qui accompagne le input::
+  
+      echo $this->Form->input('User.name', array(
+          'label' => 'Alias de l'user'
+      ));
 
-    Alternativement, définissez cette clé à false pour désactiver le rendu
-    du label::
+  Affichera:
 
-        echo $this->Form->input('User.name', array('label' => false));
+  .. code-block:: html
 
-    Affichera:
+      <div class="input">
+          <label for="UserName">Alias de l'user</label>
+          <input name="data[User][name]" type="text" value="" id="UserName" />
+      </div>
 
-    .. code-block:: html
+  Alternativement, définissez cette clé à false pour désactiver le rendu
+  du label::
 
-        <div class="input">
-            <input name="data[User][name]" type="text" value="" id="UserName" />
-        </div>
+      echo $this->Form->input('User.name', array('label' => false));
 
-    Définissez ceci dans un tableau pour fournir des options supplémentaires
-    pour l'élément ``label``. Si vous faites cela, vous pouvez utiliser une
-    clé ``text`` dans le tableau pour personnaliser le texte du label::
+  Affichera:
 
-        echo $this->Form->input('User.name', array(
-            'label' => array(
-                'class' => 'bidule',
-                'text' => 'le traducteur est fou hihaaarrrr!!!'
-            )
-        ));
+  .. code-block:: html
 
-    Affichera:
+      <div class="input">
+          <input name="data[User][name]" type="text" value="" id="UserName" />
+      </div>
 
-    .. code-block:: html
+  Définissez ceci dans un tableau pour fournir des options supplémentaires
+  pour l'élément ``label``. Si vous faites cela, vous pouvez utiliser une
+  clé ``text`` dans le tableau pour personnaliser le texte du label::
 
-        <div class="input">
-            <label for="UserName" class="bidule">le traducteur est fou hihaaarrrr!!!</label>
-            <input name="data[User][name]" type="text" value="" id="UserName" />
-        </div>
+      echo $this->Form->input('User.name', array(
+          'label' => array(
+              'class' => 'bidule',
+              'text' => 'le traducteur est fou hihaaarrrr!!!'
+          )
+      ));
 
-*   ``$options['error']`` En utilisant cette clé vous permettra de transformer
-    les messages de model par défaut et de les utiliser, par exemple, pour
-    définir des messages i18n. (cf  internationalisation).
-    comporte un nombre de sous-options qui contrôles l'enveloppe de l'élément
-    (wrapping) . Le nom de classe de l'élément enveloppé, ainsi que
-    les messages d'erreurs qui contiennent du HTML devront être échappés.
+  Affichera:
 
-    Pour désactiver le rendu des messages d'erreurs définissez la clé error
-    à false::
+  .. code-block:: html
 
-        $this->Form->input('Model.field', array('error' => false));
+      <div class="input">
+          <label for="UserName" class="bidule">le traducteur est fou hihaaarrrr!!!</label>
+          <input name="data[User][name]" type="text" value="" id="UserName" />
+      </div>
 
-    Pour modifier le type d'enveloppe de l'élément et sa classe, utilisez
-    le format suivant::
+* ``$options['error']`` En utilisant cette clé vous permettra de transformer
+  les messages de model par défaut et de les utiliser, par exemple, pour
+  définir des messages i18n. (cf  internationalisation).
+  comporte un nombre de sous-options qui contrôles l'enveloppe de l'élément
+  (wrapping) . Le nom de classe de l'élément enveloppé, ainsi que
+  les messages d'erreurs qui contiennent du HTML devront être échappés.
 
-        $this->Form->input('Model.field', array(
-            'error' => array('attributes' => array('wrap' => 'span', 'class' => 'bzzz'))
-        ));
+  Pour désactiver le rendu des messages d'erreurs définissez la clé error
+  à false::
 
-    Pour éviter que le code HTML soit automatiquement échappé dans le rendu
-    du message d'erreur, définissez la sous-option escape à false::
+      $this->Form->input('Model.field', array('error' => false));
 
-        $this->Form->input('Model.field', array(
-            'attributes' => array('escape' => false)
-        ));
+  Pour modifier le type d'enveloppe de l'élément et sa classe, utilisez
+  le format suivant::
 
     Pour surcharger les messages d'erreurs du model utilisez un tableau
     avec les clés respectant les règles de validation::
-  
+
         $this->Form->input('Model.field', array(
             'error' => array('tooShort' => __('Ceci n'est pas assez long'))
         ));
 
-    Comme vu ci-dessus vous pouvez définir les messages d'erreurs
-    pour chacune des règles de validation de vos models.
-    Vous pouvez de plus fournir des messages i18n pour vos formulaires.
+  Pour éviter que le code HTML soit automatiquement échappé dans le rendu
+  du message d'erreur, définissez la sous-option escape à false::
 
   .. versionadded:: 2.3
     Support pour l'option ``errorMessage`` a été ajouté dans 2.3
-    
+
 *   ``$options['before']``, ``$options['between']``, ``$options['separator']``,
     et ``$options['after']``
 
-    Utilisez ces clés si vous avez besoin d'injecter quelques balises à la
-    sortie de la méthode input().::
+  Pour surcharger les messages d'erreurs du model utilisez un tableau
+  avec les clés respectant les règles de validation::
 
-      echo $this->Form->input('field', array(
-          'before' => '--avant--',
-          'after' => '--après--',
-          'between' => '--entre---'
+      $this->Form->input('Model.field', array(
+          'error' => array('tooShort' => __("Ceci n'est pas assez long"))
       ));
 
-    Affichera:
+  Comme vu ci-dessus vous pouvez définir les messages d'erreurs
+  pour chacune des règles de validation de vos models.
+  Vous pouvez de plus fournir des messages i18n pour vos formulaires.
 
-    .. code-block:: html
+  .. versionadded:: 2.3
+      Support pour l'option ``errorMessage`` a été ajouté dans 2.3
 
-      <div class="input">
-      --avant--
-      <label for="UserField">Field</label>
-      --entre---
-      <input name="data[User][field]" type="text" value="" id="UserField" />
-      --après--
-      </div>
+* ``$options['before']``, ``$options['between']``, ``$options['separator']``,
+  et ``$options['after']``
 
-    Pour les input de type radio l'attribut 'separator' peut être
-    utilisé pour injecter des balise pour séparer input/label.::
+  Utilisez ces clés si vous avez besoin d'injecter quelques balises à la
+  sortie de la méthode input().::
 
-        echo $this->Form->input('field', array(
-          'before' => '--avant--',
-          'after' => '--après--',
-          'between' => '--entre---',
-          'separator' => '--séparateur--',
-          'options' => array('1', '2')
-      ));
+    echo $this->Form->input('field', array(
+        'before' => '--avant--',
+        'after' => '--après--',
+        'between' => '--entre---'
+    ));
 
-    Affichera:
+  Affichera:
 
-    .. code-block:: html
-
-      <div class="input">
-      --avant--
-      <input name="data[User][field]" type="radio" value="1" id="UserField1" />
-      <label for="UserField1">1</label>
-      --séparateur--
-      <input name="data[User][field]" type="radio" value="2" id="UserField2" />
-      <label for="UserField2">2</label>
-      --entre---
-      --après--
-      </div>
+  .. code-block:: html
 
     Pour un élément de type  ``date`` et ``datetime`` l'attribut 'separator'
     peut être utilisé pour modifier la chaîne entre les select. Par défaut '-'.
- 
+
 *   ``$options['format']`` L'ordre du code HTML généré par FormHelper est
     contrôlable comme vous le souhaitez. l'option 'format' supporte un tableau
     de chaîne  décrivant le model de page que vous voudriez que l'élément
     suive. Les clés de tableau supportées sont::
 
-        array('before', 'input', 'between', 'label', 'after','error')
+  Affichera:
 
-*   ``$options['inputDefaults']`` S'il vous semble répéter la même option dans
-    de multiples appels input(), vous pouvez utiliser ``inputDefaults`` pour
-    garder un code propre.::
+  .. code-block:: html
 
-        echo $this->Form->create('User', array(
-            'inputDefaults' => array(
-                'label' => false,
-                'div' => false
-            )
-        ));
+     <div class="input">
+     --avant--
+     <input name="data[User][field]" type="radio" value="1" id="UserField1" />
+     <label for="UserField1">1</label>
+     --séparateur--
+     <input name="data[User][field]" type="radio" value="2" id="UserField2" />
+     <label for="UserField2">2</label>
+     --entre---
+     --après--
+     </div>
 
-    Tous les inputs créés a partir de ce point hériterons
-    des valeurs déclarées dans inputDefaults. Vous pouvez
-    redéfinir defaultOptions en déclarant l'option dans l'appel
-    de l'input()::
+  Pour un élément de type  ``date`` et ``datetime`` l'attribut 'separator'
+  peut être utilisé pour modifier la chaîne entre les select. Par défaut '-'.
+ 
+* ``$options['format']`` L'ordre du code HTML généré par FormHelper est
+  contrôlable comme vous le souhaitez. l'option 'format' supporte un tableau
+  de chaîne  décrivant le model de page que vous voudriez que l'élément
+  suive. Les clés de tableau supportées sont::
+
+      array('before', 'input', 'between', 'label', 'after','error')
+
+* ``$options['inputDefaults']`` S'il vous semble répéter la même option dans
+  de multiples appels input(), vous pouvez utiliser ``inputDefaults`` pour
+  garder un code propre.::
+
+      echo $this->Form->create('User', array(
+          'inputDefaults' => array(
+              'label' => false,
+              'div' => false
+          )
+      ));
+
+  Tous les inputs créés a partir de ce point hériterons
+  des valeurs déclarées dans inputDefaults. Vous pouvez
+  redéfinir defaultOptions en déclarant l'option dans l'appel
+  de l'input()::
 
         // Pas de div, ni label
         echo $this->Form->input('password');
-        
+
         // a un élément label
         echo $this->Form->input('username', array('label' => 'Username'));
 
     Si vous avez besoin de changer plus tard les valeurs par défaut, vous
     pourrez utiliser :php:meth:`FormHelper::inputDefaults()`.
-  
+
 Générer des types de inputs spécifiques
 =======================================
 
@@ -816,7 +847,7 @@ Les options pour  select, checkbox et inputs radio
 
   .. note::
 
-    La clé selected pour les inputs de type date et datetime peuvent aussi 
+    La clé selected pour les inputs de type date et datetime peuvent aussi
     être des timestamps UNIX.
 
 * ``$options['empty']`` Est défini à true, pour forcer l'input à rester vide.
@@ -865,7 +896,7 @@ Les options pour  select, checkbox et inputs radio
     <input type="checkbox" name="data[Post][Published]" value="1" id="PostPublished" />
 
   Ceci peut être désactivé en définissant l'option ``$options['hiddenField'] = false``::
-    
+
     echo $this->Form->checkbox('published', array('hiddenField' => false));
 
   Retournera:
@@ -880,7 +911,7 @@ Les options pour  select, checkbox et inputs radio
   place à différents endroits c'est seulement le dernier groupe
   de valeur d'input qui sera sauvegardé.
 
-  Dans cet exemple , seules les couleurs tertiaires seront passées, 
+  Dans cet exemple , seules les couleurs tertiaires seront passées,
   et les couleurs primaires seront réécrite:
 
   .. code-block:: html
@@ -903,10 +934,10 @@ Les options pour  select, checkbox et inputs radio
     <input type="checkbox" name="data[Addon][Addon][]" value="5" id="CouleursOranges" />
     <label for="CouleursOranges">Orange</label>
 
-  En désactivant le champ caché ``'hiddenField'`` dans le second groupe 
+  En désactivant le champ caché ``'hiddenField'`` dans le second groupe
   d'input empêchera ce behavior.
 
-  Vous pouvez définir une valeur différente pour le champ caché autre que 0 
+  Vous pouvez définir une valeur différente pour le champ caché autre que 0
   comme 'N'::
 
       echo $this->Form->checkbox('published', array(
@@ -955,6 +986,11 @@ Les options de Datetime
 Éléments de Formulaire-Méthodes spécifiques
 ===========================================
 
+Tous les elements sont créés dans un form pour le model ``User`` comme dans les
+exemples ci-dessous. Pour cette raison, le code HTML généré contiendra des
+attributs qui font référence au model User
+Ex: name=data[User][username], id=UserUsername
+
 .. php:method:: label(string $fieldName, string $text, array $options)
 
     Crée un élément label. ``$fieldName`` est utilisé pour générer le
@@ -992,7 +1028,7 @@ Les options de Datetime
     Toutefois, dans ce cas, $options est utilisé avant tout pour spécifier
     les attributs des balises HTML
     (comme la valeur ou l'id DOM d'un élément du formulaire).::
-   
+
         echo $this->Form->text('username', array('class' => 'users'));
 
     Affichera:
@@ -1025,8 +1061,17 @@ Les options de Datetime
 
         <input name="data[User][id]" value="10" id="UserId" type="hidden">
 
+    Si le form est édité (qui est le tableau ``$this->request->data`` va
+    contenir les informations sauvegardées pour le model ``User``), la valeur
+    correspondant au champ ``id`` sera automatiquement ajoutée au HTML généré.
+    Exemple pour data[User][id] = 10:
+    
+    .. code-block:: html
+        
+        <input name="data[User][id]" id="UserId" type="hidden" />
+
     .. versionchanged:: 2.0
-        Les champs cachés n'enlève plus la classe attribute. Cela signifie
+        Les champs cachés n'enlèvent plus la classe attribute. Cela signifie
         que si il y a des erreurs de validation sur les champs cachés, le
         nom de classe error-field sera appliqué.
 
@@ -1042,11 +1087,22 @@ Les options de Datetime
 
         <textarea name="data[User][notes]" id="UserNotes"></textarea>
 
+    Si le form est édité (ainsi, le tableau ``$this->request->data`` va contenir
+    les informations sauvegardées pour le model ``User``), la valeur
+    correspondant au champs ``notes`` sera automatiquement ajoutée au HTML 
+    généré. Exemple:
+
+    .. code-block:: html
+
+        <textarea name="data[User][notes]" id="UserNotes">
+        Ce texte va être édité.
+        </textarea>
+
     .. note::
 
-        Le input ``textarea`` permet pour ``$options`` l'attribut
+        Le type d'input ``textarea`` permet à l'attribut ``$options`` d'échapper
         ``'escape'`` lequel détermine si oui ou non le contenu du textarea
-        pourrait être échappé. Par défaut à ``true``.
+        doit être échappé. Par défaut à ``true``.
 
     ::
 
@@ -1145,8 +1201,8 @@ Les options de Datetime
         <label for="UserGenreF">Femme</label>
 
     Si pour quelque raisons vous ne voulez pas du input caché, définissez
-    ``$attributes['value']`` à une valeur sélectionnée ou le booléen false 
-    
+    ``$attributes['value']`` à une valeur sélectionnée ou le booléen false
+
     .. versionchanged:: 2.1
         L'option d'attribut ``$attributes['disabled']`` a été ajoutée dans CakePHP 2.1.
 
@@ -1156,7 +1212,7 @@ Les options de Datetime
     avec l'option spécifiée par ``$attributes['value']`` sera montré comme
     sélectionné par défaut. Définir à false la clé 'empty' dans la variable
     ``$attributes`` pour empêcher l'option empty par défaut::
-   
+
         $options = array('H' => 'Homme', 'F' => 'Femme');
         echo $this->Form->select('genre', $options)
 
@@ -1221,7 +1277,7 @@ Les options de Datetime
       avec les checkboxes multiples et les boutons radios également,
       mais au lieu des groupes optionnels enveloppez les éléments
       dans des fieldsets::
-      
+
         $options = array(
            'Group 1' => array(
               'Value 1' => 'Label 1',
@@ -1299,13 +1355,16 @@ Les options de Datetime
 
         <div class="input select">
            <label for="ModelField">Field</label>
-           <input name="data[Model][field]" value="" id="ModelField" type="hidden">
+           <input name="data[Model][field]" value="" id="ModelField"
+            type="hidden">
            <div class="checkbox">
-              <input name="data[Model][field][]" disabled="disabled" value="Value 1" id="ModelField1" type="checkbox">
+              <input name="data[Model][field][]" disabled="disabled"
+                value="Value 1" id="ModelField1" type="checkbox">
               <label for="ModelField1">Label 1</label>
            </div>
            <div class="checkbox">
-              <input name="data[Model][field][]" value="Value 2" id="ModelField2" type="checkbox">
+              <input name="data[Model][field][]" value="Value 2"
+                id="ModelField2" type="checkbox">
               <label for="ModelField2">Label 2</label>
            </div>
         </div>
@@ -1320,12 +1379,14 @@ Les options de Datetime
     enctype du formulaire est définit a  "multipart/form-data", donc commençons
     avec une fonction create comme ci-dessous::
 
-        echo $this->Form->create('Document', array('enctype' => 'multipart/form-data'));
+        echo $this->Form->create('Document', array(
+            'enctype' => 'multipart/form-data'
+        ));
         // OU
         echo $this->Form->create('Document', array('type' => 'file'));
 
-    Ensuite ajoutons l'une ou l'autre des deux lignes dans le fichier de vue de votre
-    formulaire::
+    Ensuite ajoutons l'une ou l'autre des deux lignes dans le fichier de
+    vue de votre formulaire::
 
         echo $this->Form->input('Document.submittedfile', array(
             'between' => '<br />',
@@ -1339,7 +1400,7 @@ Les options de Datetime
     En raisons des limitations du code HTML lui même, il n'est pas possible
     de placer des valeurs par défauts dans les champs inputs de type 'file'.
     A chacune des fois ou le formulaire sera affiché, la valeur sera vide.
-  
+
     Lors de la soumission, le champ file fournit un tableau étendu de données
     au script recevant les données de formulaire.
 
@@ -1416,7 +1477,7 @@ Création des boutons et des éléments submits
 
     Vous pouvez aussi passer une URL relative ou absolue vers une image
     pour le paramêtre caption au lieu d'un caption text::
-    
+
         echo $this->Form->submit('ok.png');
 
     Affichera:
@@ -1466,21 +1527,21 @@ Création des boutons et des éléments submits
     pas cette méthode dans un formulaire ouvert. Utilisez plutôt
     :php:meth:`FormHelper::submit() ou :php:meth:`FormHelper::button()`
     pour créér des boutons a l'intérieur de formulaires ouvert.
-    
+
 .. php:method:: postLink(string $title, mixed $url = null, array $options = array (), string $confirmMessage = false)
 
     Crée un lien HTML, mais accède à l'Url en utilisant la méthode POST.
     Requiert que JavaScript  soit autorisé dans votre navigateur.
-    
+
     Cette méthode créée un élément ``<form>``. Donc n'utilisez pas cette
     méthode dans un formulaire existant. En remplacement vous devriez
     ajouter un bouton submit en utilisant :php:meth:`FormHelper::submit()`.
-    
+
     .. versionchanged:: 2.3
 
     L'option ``method`` a été ajoutée.
 
-   
+
 Crée des inputs de date et d'heure (date and time inputs)
 =========================================================
 
@@ -1500,7 +1561,7 @@ Crée des inputs de date et d'heure (date and time inputs)
     ``$minYear`` jusqu'à ``$maxYear``. Les attributs HTML devrons être fournis
     dans $attributes. Si ``$attributes['empty']`` est false, le select
     n'inclura pas d'option empty::
-   
+
         echo $this->Form->annee('purchased', 2000, date('Y'));
 
     Affichera:
@@ -1554,7 +1615,7 @@ Crée des inputs de date et d'heure (date and time inputs)
     sont internationalisés et peuvent être traduits en utilisant la
     localisation)::
 
-        echo $this->Form->month('mob', null, array('monthNames' => false));
+        echo $this->Form->month('mob', array('monthNames' => false));
 
 .. php:method:: day(string $fieldName, array $attributes)
 
@@ -1654,7 +1715,7 @@ déclarant l'option dans l'appel input()::
 
     echo $this->Form->input('password'); // Pas de div, pas de label avec la classe 'fancy'
     echo $this->Form->input('username', array('label' => 'Username')); // a un élément label avec les mêmes valeurs par défaut
-    
+
 Travailler avec le Component Sécurity
 =====================================
 
@@ -1670,11 +1731,11 @@ Ceci assurera que les inputs  jeton spéciaux ``_Token`` seront générés.
 
 .. php:method:: unlockField($name)
 
-    Déverrouille un champ en le rendant exempt du hachage (hashing) 
+    Déverrouille un champ en le rendant exempt du hachage (hashing)
     du ``SecurityComponent``. Ceci permet également au champ d'être
     manipulé par Javascript. Le paramètre ``$name`` devra être le nom
     d'entité de l'input::
-    
+
         $this->Form->unlockField('User.id');
 
 .. php:method:: secure(array $fields = array())

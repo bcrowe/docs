@@ -1,5 +1,5 @@
 Tutoriel d'un Blog
-******************
+##################
 
 Bienvenue sur CakePHP. Vous consultez probablement ce tutoriel parce que vous
 voulez en apprendre plus à propos du fonctionnement de CakePHP.
@@ -19,7 +19,8 @@ Voici ce dont vous aurez besoin :
    être assez semblables. Nous aurons peut-être besoin de jouer un peu sur la
    configuration du serveur, mais la plupart des personnes peuvent faire
    fonctionner CakePHP sans aucune configuration préalable. Assurez-vous
-   d'avoir PHP 5.4.3 ou supérieur.
+   d'avoir PHP 5.4.19 ou supérieur et que les extensions ``mbstring`` et
+   ``mcrypt`` sont activées dans PHP.
 #. Un serveur de base de données. Dans ce tutoriel, nous utiliserons MySQL.
    Vous aurez besoin d'un minimum de connaissance en SQL afin de créer une
    base de données : CakePHP prendra les rênes à partir de là. Puisque nous
@@ -38,21 +39,35 @@ Maintenant, lançons-nous !
 Obtenir CakePHP
 ===============
 
-Pour obtenir la dernière version, allez sur le site GitHub du projet CakePHP :
+Le manière la plus simple pour le récupérer et le lancer est de télécharger ou
+de cloner une copie récente à partir de Github. Pour ce faire, allez simplement
+sur le projet CakePHP sur Github:
 `http://github.com/cakephp/cakephp/releases <http://github.com/cakephp/cakephp/releases>`_
-et téléchargez la dernière version de la 3.0.
+et télécharger la dernière version de CakePHP 3.0.
 
-Vous pouvez aussi installer CakePHP en utilisant ``Composer``::
+Vous pouvez aussi installer CakePHP en utilisant ``Composer``.
+``Composer`` est une manière simple d'installer CakePHP à partir de votre
+terminal ou de l'invité de ligne de commande. Tapez simplement les deux lignes
+suivantes dans votre terminal à partir de votre répertoire webroot::
 
     curl -s https://getcomposer.org/installer | php
-    php composer.phar create-project cakephp/app
+    php composer.phar create-project -s dev cakephp/app
 
-Ceci va télécharge Composer et installer le squelette de l'application
-de CakePHP. Pour ce tutoriel, nous allons télécharger le fichier zip puisque
-c'est l'options la plus simple.
+Ceci va télécharger Composer et installer le squelette de l'application
+de CakePHP. Par défaut Composer va sauvegarder votre nouveau projet dans un
+répertoire appelé ``app``. N'hésitez pas à renommer ce répertoire pour quelque
+chose qui est lié à votre projet, par ex: ``blog``.
 
-Peu importe comment vous l'avez téléchargé, placez le code à l'intérieur du
-"DocumentRoot" de votre serveur. Une fois terminé, votre répertoire
+L'avantage d'utiliser Composer est qu'il va automatiquement réaliser certaines
+tâches de configurations importantes, comme configurer les bonnes permissions
+de fichier et créer votre fichier app/Config/app.php à votre place.
+
+Il y a d'autres moyens d'installer CakePHP si vous n'êtes pas à l'aise avec
+``Composer``. Pour plus d'informations: regardez la section
+:doc:`/installation`.
+
+Peu importe la façon dont vous l'avez téléchargé, placez le code à l'intérieur
+du "DocumentRoot" de votre serveur. Une fois terminé, votre répertoire
 d'installation devrait ressembler à quelque chose comme cela::
 
     /chemin_du_document_root
@@ -73,6 +88,28 @@ d'installation devrait ressembler à quelque chose comme cela::
 A présent, il est peut-être temps de voir un peu comment fonctionne la
 structure de fichiers de CakePHP : lisez le chapitre
 :doc:`/getting-started/cakephp-folder-structure`.
+
+Les Permissions du Répertoire tmp
+=================================
+
+Ensuite vous devrez mettre le répertoire ``/tmp`` en écriture pour le serveur
+web. La meilleur façon de le faire est de trouver sous quel utilisateur votre
+serveur web tourne en faisant (``<?= `whoami`; ?>``) et en changeant le
+possesseur du répertoire ``App/tmp`` pour cet utilisateur. La commande finale
+que vous pouvez lancer (dans \*nix) pourrait ressembler à ceci::
+
+    $ chown -R www-data App/tmp
+
+Si pour une raison ou une autre, CakePHP ne peut écrire dans ce répertoire, vous
+verrez des avertissements et des exceptions attrapées vous disant que les
+données de cache n’ont pas pu être écrites quand vous n'êtes pas en mode
+production.
+
+Bien que non recommandé, si vous ne pouvez pas configurer les permissions de la
+même façon que pour votre serveur web, vous pouvez simplement définir les
+permissions sur le dossier en lançant une commande comme celle-ci::
+
+    $ chmod 777 -R tmp
 
 Créer la base de données du blog
 ================================
@@ -124,7 +161,7 @@ connecter. Pour la plupart d'entre vous, c'est la première et dernière fois qu
 vous configurerez quelque chose.
 
 Une copie du fichier de configuration CakePHP pour la base de données se trouve
-dans ``App/Config/app.php.default``. Faites une copie de ce fichier dans
+dans ``App/Config/app.default.php``. Faites une copie de ce fichier dans
 le même répertoire mais nommez le ``app.php``.
 
 Le fichier de configuration devrait être assez simple : remplacez simplement
@@ -133,20 +170,22 @@ votre installation. Un exemple de tableau de configuration complet pourrait
 ressembler à ce qui suit::
 
     $config = [
-        // Plus de configuration ci-dessus.
+        // Plus de configuration au-dessus.
         'Datasources' => [
             'default' => [
-                'className' => 'Cake\Database\Driver\Mysql',
-                'persistent' => 'false,',
+                'className' => 'Cake\Database\Connection',
+                'driver' => 'Cake\Database\Driver\Mysql',
+                'persistent' => false,
                 'host' => 'localhost',
                 'login' => 'cake_blog',
                 'password' => 'AngelF00dC4k3~',
                 'database' => 'cake_blog',
                 'prefix' => false,
                 'encoding' => 'utf8',
-            ]
+                'timezone' => 'UTC'
+            ],
         ],
-        // Plus de configuration ci-dessous.
+        // Plus de configuration en-dessous.
     ];
 
 Une fois votre nouveau fichier ``app.php`` sauvegardé, vous devriez
@@ -159,27 +198,10 @@ a été trouvé, et que CakePHP peut s'y connecter avec succès.
     Rappelez-vous que vous aurez besoin d'avoir PDO, et pdo_mysql activés dans
     votre php.ini.
 
-Les Permissions du Répertoire tmp
-=================================
-
-Ensuite vous devrez mettre le répertoire ``/tmp`` en écriture pour le serveur
-web. La meilleur façon de le faire est de trouver sous quel utilisateur votre
-serveur web tourne. Vous pouver mettre <?php echo exec('whoami'); ?> à
-l’intérieur de tout fichier php que votre serveur web execute. Vous devriez voir
-afficher un nom d’utilisateur. Changez le possesseur du répertoire ``App/tmp``
-pour cet utilisateur. La commande finale que vous pouvez lancer (dans \*nix)
-pourrait ressembler à ceci::
-
-    $ chown -R www-data App/tmp
-
-Si pour une raison ou une autre, CakePHP ne peut écrire dans ce répertoire, vous
-verrez des avertissements et des exceptions attrapées vous disant que les
-données de cache n’ont pas pu être écrites.
-
 Configuration facultative
 =========================
 
-Il y a trois autres élements qui peuvent être configurés. La plupart des
+Il y a quelques autres élements qui peuvent être configurés. La plupart des
 développeurs configurent les éléments de cette petite liste, mais ils ne
 sont pas obligatoires pour ce tutoriel. Le premier consiste à définir une
 chaîne de caractères personnalisée (ou "grain de sel") afin de sécuriser les
@@ -198,7 +220,7 @@ difficile à deviner::
 Une note sur mod\_rewrite
 =========================
 
-Occasionnellement, un nouvel utilisateur peut avoir des problèmes de
+Occasionnellement, les nouveaux utilisateurs peuvent avoir des problèmes de
 mod\_rewrite. Par exemple si la page d'accueil de CakePHP a l'air bizarre
 (pas d'images ou de styles CSS), cela signifie probablement que
 mod\_rewrite ne fonctionne pas sur votre système. Merci de vous référer
@@ -206,6 +228,7 @@ mod\_rewrite ne fonctionne pas sur votre système. Merci de vous référer
 web fonctionne:
 
 .. toctree::
+    :maxdepth: 1
 
     /installation/url-rewriting
 
@@ -224,7 +247,7 @@ web fonctionne:
    ou (pour Apache 1.3)::
 
        AddModule             mod_rewrite.c
-   
+
    dans votre httpd.conf.
 
 

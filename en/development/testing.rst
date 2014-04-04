@@ -25,10 +25,12 @@ is also supported. To install PHPUnit run the following::
 
     pear upgrade PEAR
     pear config-set auto_discover 1
-    pear install pear.phpunit.de/PHPUnit
+    pear install pear.phpunit.de/PHPUnit-3.7.32
 
 .. note::
 
+    PHPUnit 4 is not compatible with CakePHP's Unit Testing.
+    
     Depending on your system's configuration, you may need to run the previous
     commands with ``sudo``
 
@@ -43,7 +45,7 @@ Install PHPUnit with Composer
 To install PHPUnit with Composer, add the following to you application's
 ``require`` section in its ``package.json``::
 
-    "phpunit/PHPUnit": ">=3.7.0",
+    "phpunit/phpunit": "3.7.*",
 
 After updating your package.json, run Composer again inside your application
 directory::
@@ -56,7 +58,7 @@ Test Database Setup
 Remember to have a debug level of at least 1 in your ``App/Config/app.php``
 file before running any tests.  Tests are not accessible via the web runner when
 debug is equal to 0.  Before running any tests you should be sure to add a
-``test`` datasource configuration to ``App/Config/app.php``.  This 
+``test`` datasource configuration to ``App/Config/app.php``.  This
 configuration is used by CakePHP for fixture tables and data::
 
     'Datasources' => [
@@ -440,7 +442,7 @@ if you wanted all the created and updated timestamps to reflect today's date you
 could do the following::
 
     namespace App\Test\Fixture;
-    
+
     use Cake\TestSuite\Fixture\TestFixture;
 
     class ArticleFixture extends TestFixture {
@@ -507,9 +509,30 @@ as it was shown on previous section. For example::
     class ArticleFixture extends TestFixture {
         public $import = ['table' => 'articles'];
         public $records = array(
-            array('id' => 1, 'title' => 'First Article', 'body' => 'First Article Body', 'published' => '1', 'created' => '2007-03-18 10:39:23', 'updated' => '2007-03-18 10:41:31'),
-            array('id' => 2, 'title' => 'Second Article', 'body' => 'Second Article Body', 'published' => '1', 'created' => '2007-03-18 10:41:23', 'updated' => '2007-03-18 10:43:31'),
-            array('id' => 3, 'title' => 'Third Article', 'body' => 'Third Article Body', 'published' => '1', 'created' => '2007-03-18 10:43:23', 'updated' => '2007-03-18 10:45:31')
+            array(
+              'id' => 1,
+              'title' => 'First Article',
+              'body' => 'First Article Body',
+              'published' => '1',
+              'created' => '2007-03-18 10:39:23',
+              'updated' => '2007-03-18 10:41:31'
+            ),
+            array(
+              'id' => 2,
+              'title' => 'Second Article',
+              'body' => 'Second Article Body',
+              'published' => '1',
+              'created' => '2007-03-18 10:41:23',
+              'updated' => '2007-03-18 10:43:31'
+            ),
+            array(
+              'id' => 3,
+              'title' => 'Third Article',
+              'body' => 'Third Article Body',
+              'published' => '1',
+              'created' => '2007-03-18 10:43:23',
+              'updated' => '2007-03-18 10:45:31'
+            )
         );
     }
 
@@ -552,6 +575,21 @@ You can control when your fixtures are loaded by setting
             $this->loadFixtures('Article', 'Comment');
         }
     }
+
+As of 2.5.0, you can load fixtures in subdirectories. Using multiple directories
+can make it easier to organize your fixtures if you have a larger application.
+To load fixtures in subdirectories, simply include the subdirectory name in the
+fixture name::
+
+    class ArticleTest extends CakeTestCase {
+        public $fixtures = array('app.blog/article', 'app.blog/comment');
+    }
+
+In the above example, both fixtures would be loaded from
+``App/Test/Fixture/blog/``.
+
+.. versionchanged:: 2.5
+    As of 2.5.0 you can load fixtures in subdirectories.
 
 Testing Models
 ==============
@@ -677,6 +715,8 @@ test methods like :php:meth:`~Controller::redirect()`.
 Say you have a typical Articles controller, and its corresponding
 model. The controller code looks like::
 
+    App::uses('AppController', 'Controller');
+    
     class ArticlesController extends AppController {
         public $helpers = array('Form', 'Html');
 
@@ -709,7 +749,7 @@ Create a file named ``ArticlesControllerTest.php`` in your
         public $fixtures = array('app.article');
 
         public function testIndex() {
-            $result = $this->testAction('/articles/index');
+            $result = $this->testAction('/articles');
             debug($result);
         }
 
@@ -743,7 +783,7 @@ Create a file named ``ArticlesControllerTest.php`` in your
                 'body' => 'New Body'
             );
             $result = $this->testAction(
-                '/articles/index',
+                '/articles',
                 array('data' => $data, 'method' => 'post')
             );
             debug($result);
@@ -761,6 +801,8 @@ this, is that ``redirect()`` is mocked in testing, and does not exit like
 normal. You should always return after calling ``redirect`` to prevent unwanted
 code from executing::
 
+    App::uses('AppController', 'Controller');
+    
     class ArticlesController extends AppController {
         public function add() {
             if ($this->request->is('post')) {
@@ -777,17 +819,24 @@ Simulating GET Requests
 -----------------------
 
 As seen in the ``testIndexPostData()`` example above, you can use
-``testAction()`` to test POST actions as well as GET actions. By supplying the
-``data`` key, the request made to the controller will be POST. By default all
-requests will be POST requests. You can simulate a GET request by setting the
+``testAction()`` to test POST actions as well as GET actions. By default all
+requests will be GET requests. You can simulate a GET or POST request by setting the
 method key::
 
     public function testAdding() {
         $data = array(
+            'title' => 'New post'
+        );
+        $this->testAction('/posts/add', array('data' => $data, 'method' => 'get'));
+        // some assertions.
+    }
+
+    public function testAddingPost() {
+        $data = array(
             'title' => 'New post',
             'body' => 'Secret sauce'
         );
-        $this->testAction('/posts/add', array('data' => $data, 'method' => 'get'));
+        $this->testAction('/posts/add', array('data' => $data, 'method' => 'post'));
         // some assertions.
     }
 
@@ -812,7 +861,7 @@ you can also access the various other return types as properties in the test
 case::
 
     public function testIndex() {
-        $this->testAction('/posts/index');
+        $this->testAction('/posts');
         $this->assertInstanceOf('Cake\ORM\Query', $this->vars['posts']);
     }
 
@@ -880,6 +929,7 @@ allowing you to check for redirects::
             ->will($this->returnValue(true));
 
         $this->testAction('/articles', array(
+            'method' => 'post',
             'data' => array(
                 'title' => 'New Article'
             )
@@ -1110,7 +1160,10 @@ Now we create our tests::
             $this->assertEquals('USD 2.05', $this->CurrencyRenderer->usd(2.05));
 
             // Testing the thousands separator
-            $this->assertEquals('USD 12,000.70', $this->CurrencyRenderer->usd(12000.70));
+            $this->assertEquals(
+              'USD 12,000.70',
+              $this->CurrencyRenderer->usd(12000.70)
+            );
         }
     }
 
@@ -1132,7 +1185,7 @@ could would create ``App/Test/TestCase/AllModelTest.php``. Put the following in 
     class AllModelTest extends TestSuite {
         public static function suite() {
             $suite = new CakeTestSuite('All model tests');
-            $suite->addTestDirectory(TESTS . 'Case' . DS . 'Model');
+            $suite->addTestDirectory(TESTS . 'Case/Model');
             return $suite;
         }
     }

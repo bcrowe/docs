@@ -1,7 +1,7 @@
 SessionHelper
 #############
 
-.. php:class:: SessionHelper(View $view, array $settings = array())
+.. php:class:: SessionHelper(View $view, array $config = array())
 
 As a natural counterpart to the Session Component, the Session
 Helper replicates most of the components functionality and makes it
@@ -85,7 +85,7 @@ Displaying Notifications or Flash Messages
         // in a layout.
         echo $this->Session->flash('flash', array('element' => 'failure'));
 
-    This would use ``View/Element/failure.ctp`` to render the message. The
+    This would use ``View/Elements/failure.ctp`` to render the message. The
     message text would be available as ``$message`` in the element.
 
     Inside the failure element file would be something like
@@ -107,9 +107,9 @@ Displaying Notifications or Flash Messages
         <?= $this->Session->flash('flash', array(
             'params' => array('name' => $user['User']['name'])
             'element' => 'payment'
-        )) ?>
+        ));
 
-        // View/Element/payment.ctp
+        // View/Elements/payment.ctp
         <div class="flash payment">
             <?php printf($message, h($name)); ?>
         </div>

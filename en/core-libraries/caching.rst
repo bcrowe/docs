@@ -82,7 +82,7 @@ needed. Example::
     ));
 
     // Using a constructed object.
-    $object = new FileEngine($settings);
+    $object = new FileEngine($config);
     Cache::config('other', $object);
 
 .. note::
@@ -130,11 +130,6 @@ Cache.check
 
     When using the FileEngine you might need to use the ``mask`` option to
     ensure cache files are made with the correct permissions.
-
-.. versionadded:: 2.4
-
-    In debug mode missing directories will now be automatically created to avoid unnecessary
-    errors thrown when using the FileEngine.
 
 Creating a Storage Engine for Cache
 ===================================
@@ -306,7 +301,7 @@ remove all entries associated to the ``post`` group::
 
     // Model/Post.php
 
-    public function afterSave($created) {
+    public function afterSave($created, $options = array()) {
         if ($created) {
             Cache::clearGroup('post', 'site_home');
         }
@@ -323,7 +318,7 @@ group and configurations, i.e.: having the same group::
      * A variation of previous example that clears all Cache configurations
      * having the same group
      */
-    public function afterSave($created) {
+    public function afterSave($created, $options = array()) {
         if ($created) {
             $configs = Cache::groupConfigs('post');
             foreach ($configs['post'] as $config) {

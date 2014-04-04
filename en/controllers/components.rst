@@ -1,21 +1,16 @@
 Components
 ##########
 
-Components are packages of logic that are shared between
-controllers. If you find yourself wanting to copy and paste things
-between controllers, you might consider wrapping some functionality
-in a component.
+Components are packages of logic that are shared between controllers.
+CakePHP comes with a fantastic set of core components you can use to aid in
+various common tasks. You can also create you own components. If you find
+yourself wanting to copy and paste things between controllers, you should
+consider creating your own component to contain the functionality. Creating
+components keeps controller code clean and allows you to reuse code between projects.
 
-CakePHP also comes with a fantastic set of core components you can
-use to aid in:
-
-.. include:: /core-libraries/toc-components.rst
-    :start-line: 7
-
-Each of these core components is detailed in its own chapter.
-For now, we'll show you how to create your own components. Creating
-components keeps controller code clean and allows you to reuse code
-between projects.
+Each of the core components is detailed in its own chapter. See :doc:`/core-libraries/toc-components`.
+This section describes how to configure and use components, and how to create
+your own components.
 
 .. _configuring-components:
 
@@ -37,33 +32,33 @@ Configuration for these components, and for components in general, is usually do
             'Cookie' => ['name' => 'CookieMonster']
         ];
 
-The previous fragment of code would be an example of
-configuring a component with the ``$components`` array.
-All core components allow their
-configuration settings to be set in this way. In addition, you can
-configure components in your controller's ``beforeFilter()``
-method. This is useful when you need to assign the results of a
-function to a component property. The above could also be expressed
-as::
+The previous fragment of code would be an example of configuring a component
+with the ``$components`` array. You can configure components at runtime using
+the ``config()`` method. Often, this is done in your controller's
+``beforeFilter()`` method. The above could also be expressed as::
 
     public function beforeFilter() {
-        $this->Auth->authorize = ['controller'];
-        $this->Auth->loginAction = ['controller' => 'users', 'action' => 'login'];
+        $this->Auth->config('authorize', ['controller']);
+        $this->Auth->config('loginAction', ['controller' => 'users', 'action' => 'login']);
 
-        $this->Cookie->name = 'CookieMonster';
+        $this->Cookie->config('name', 'CookieMonster');
     }
 
-It's possible, however, that a component requires certain
-configuration options to be set before the controller's
-``beforeFilter()`` is run. To this end, some components allow
-configuration options be set in the ``$components`` array::
+Like helpers, components implement a ``config()`` method that is used to get and
+set any configuration data for a component::
 
-    public $components = [
-        'DebugKit.Toolbar' => ['panels' => ['history', 'session']]
-    ];
+    // Read config data.
+    $this->Auth->config('loginAction');
 
-Consult the relevant documentation to determine what configuration
-options each component provides.
+    // Set config
+    $this->Csrf->config('cookieName', 'token');
+
+As with helpers, components will automatically merge their ``$_defaultConfig``
+property with constructor configuration to create the ``$_config`` property
+which is accessible with ``config()``.
+
+Aliasing Components
+-------------------
 
 One common setting to use is the ``className`` option, which allows you to
 alias components. This feature is useful when you want to
@@ -144,6 +139,8 @@ Components also offer a few request life-cycle callbacks that allow them to
 augment the request cycle. See the base :ref:`component-api` and
 :doc:`/core-libraries/events` for more information on the callbacks components
 offer.
+
+.. _creating-a-component:
 
 Creating a Component
 ====================
@@ -255,11 +252,11 @@ Component API
     as dealing with common handling of settings. It also provides prototypes
     for all the component callbacks.
 
-.. php:method:: __construct(ComponentRegistry $registry, $settings = [])
+.. php:method:: __construct(ComponentRegistry $registry, $config = [])
 
-    Constructor for the base component class. All ``$settings`` that
+    Constructor for the base component class. All ``$config`` that
     are also public properties will have their values changed to the
-    matching value in ``$settings``.
+    matching value in ``$config``.
 
 Callbacks
 ---------

@@ -24,8 +24,8 @@
 ====================
 
 コアコンポーネントの多くは設定を必要としています。コンポーネントが設定を必要としている例は、
-:doc:`/core-libraries/components/authentication`, :doc:`/core-libraries/components/cookie` や
-:doc:`/core-libraries/components/email` などにあります。これらのコンポーネントと普通のコンポーネントの設定は大抵の場合、
+:doc:`/core-libraries/components/authentication` や :doc:`/core-libraries/components/cookie` などにあります。
+これらのコンポーネントと普通のコンポーネントの設定は大抵の場合、
 ``$components`` 配列かコントローラの ``beforeFilter()`` メソッドで行われます。::
 
     class PostsController extends AppController {
@@ -216,9 +216,9 @@
     コンポーネントの基底クラスは :php:class:`ComponentCollection` を通して共通のハンドリング設定を扱うように他のコンポーネントを遅延読み込みするためのメソッドをいくつか提供しています。
     また、コンポーネントのすべてのコールバックのプロトタイプを提供します。
 
-.. php:method:: __construct(ComponentCollection $collection, $settings = array())
+.. php:method:: __construct(ComponentCollection $collection, $config = array())
 
-    基底コンポーネントクラスのコンストラクタです。すべての ``$settings`` 、またはパブリックプロパティは ``$settings`` の中で一致した値に変更されます。
+    基底コンポーネントクラスのコンストラクタです。すべての ``$config`` 、またはパブリックプロパティは ``$config`` の中で一致した値に変更されます。
 
 コールバック
 ------------

@@ -2,21 +2,18 @@ Components (Composants)
 #######################
 
 Les Components (Composants) sont des regroupements de logique applicative
-qui sont partagés entre les controllers. Si vous vous surprenez à vouloir
-copier et coller des choses entre vos controllers, alors vous devriez envisager
-de regrouper plusieurs fonctionnalités dans un Component.
-
-CakePHP est également livré avec un fantastique ensemble de components,
-que vous pouvez utiliser pour vous aider :
-
-.. include:: /core-libraries/toc-components.rst
-    :start-line: 7
+qui sont partagés entre les controllers. CakePHP est également livré avec un
+fantastique ensemble de components, que vous pouvez utiliser pour vous aider.
+Si vous vous surprenez à vouloir copier et coller des choses entre vos
+controllers, alors vous devriez envisager de regrouper plusieurs
+fonctionnalités dans un Component. Créer des components permettent de garder
+un code de controller propre et vous permet de réutiliser du code entre des
+projets.
 
 Chacun de ces components d'origine est détaillé dans son chapitre
-spécifique. Pour l'heure, nous allons vous montrer comment créer
-vos propres components. La création de components vous permet de garder
-le code de vos controllers propres et vous permet de réutiliser
-du code entre vos projets.
+spécifique. Regardez :doc:`/core-libraries/toc-components`. Cette section
+décrit la façon de configurer et d'utiliser les components et la façon de
+créer vos propres components.
 
 .. _configuring-components:
 
@@ -41,30 +38,33 @@ de vos controllers::
         ];
 
 La portion de code précédente est un exemple de configuration d'un component
-avec le tableau ``$components``. Tous les components du coeur permettent aux
-paramètres d'être configurés dans la méthode de votre controller
-``beforeFilter()``. C'est utile quand vous avez besoin d'assigner les résultats
-d'une fonction à la propriété d'un component. Ceci peut aussi être exprimé
+avec le tableau ``$components``. Vous pouvez configurer les components à la
+volée en utilisant la méthode ``config()``. Souvent, ceci est fait dans la
+méthode ``beforeFilter()`` de votre controller. Ceci peut aussi être exprimé
 comme ceci::
 
     public function beforeFilter() {
-        $this->Auth->authorize = ['controller'];
-        $this->Auth->loginAction = ['controller' => 'users', 'action' => 'login'];
+        $this->Auth->config('authorize', ['controller']);
+        $this->Auth->config('loginAction', ['controller' => 'users', 'action' => 'login']);
 
-        $this->Cookie->name = 'CookieMonster';
+        $this->Cookie->config('name', 'CookieMonster');
     }
 
-C'est possible, cependant, que le component nécessite certaines options de
-configuration avant que le controller ``beforeFilter()`` soit lancé.
-Pour cela, certains components permettent aux options de configuration
-d'être définies dans le tableau ``$components``::
+Comme les helpers, les components ont une méthode ``config()`` qui est utilisée
+pour récupérer et définir toutes les configurations pour un component::
 
-    public $components = [
-        'DebugKit.Toolbar' => ['panels' => ['history', 'session']]
-    ];
+    // Lire des données de config.
+    $this->Auth->config('loginAction');
 
-Consultez la documentation appropriée pour connaître les options de
-configuration que chaque component fournit.
+    // Définir la config
+    $this->Csrf->config('cookieName', 'token');
+
+Comme avec les helpers, les components vont automatiquement fusionner leur
+propriété ``$_defaultConfig`` avec le configuration du constructeur pour créer
+la propriété ``$_config`` qui est accessible avec ``config()``.
+
+Faire des alias avec les Components
+-----------------------------------
 
 Un paramètre commun à utiliser est l'option ``className``, qui vous autorise
 les alias des components. Cette fonctionnalité est utile quand vous voulez
@@ -127,7 +127,7 @@ Vous n'avez parfois pas besoin de rendre le component accessible sur chaque
 action. Dans ce cas là, vous pouvez charger à la volée en utilisant la
 :doc:`Component Collection </core-libraries/collections>`. A partir de
 l'intérieur d'un controller, vous pouvez faire comme ce qui suit::
-    
+
     $this->OneTimer = $this->Components->load('OneTimer');
     $this->OneTimer->getTime();
 
@@ -144,6 +144,8 @@ Les components vous offrent aussi quelques callbacks durant leur cycle de vie
 qui vous permettent d'augmenter le cycle de la requête. Allez voir l'api
 :ref:`component-api` et :doc:`/core-libraries/events` pour plus d'informations
 sur les callbacks possibles des components.
+
+.. _creating-a-component:
 
 Créer un Component
 ==================
@@ -259,12 +261,12 @@ API de Component
     avec la gestion habituelle des paramètres. Elle fournit aussi des prototypes
     pour tous les callbacks des components.
 
-.. php:method:: __construct(ComponentRegistry $registry, $settings = [])
+.. php:method:: __construct(ComponentRegistry $registry, $config = [])
 
     Les Constructeurs pour la classe de base du component. Tous les
-    paramètres se trouvent dans ``$settings`` et ont des propriétés publiques.
+    paramètres se trouvent dans ``$config`` et ont des propriétés publiques.
     Ils vont avoir leur valeur changée pour correspondre aux valeurs de
-    ``$settings``.
+    ``$config``.
 
 Les Callbacks
 -------------

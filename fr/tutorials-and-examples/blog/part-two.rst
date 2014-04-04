@@ -1,5 +1,5 @@
 Blog Tutoriel - Ajouter la logique
-**********************************
+##################################
 
 Créer un Model Article
 ======================
@@ -91,7 +91,7 @@ www.exemple.com/articles/foobar.
 La seule instruction que cette action utilise est ``set()``, pour transmettre
 les données du controller à la vue (que nous créerons à la prochaine étape).
 La ligne définit la variable de vue appelée 'articles' qui est égale à la valeur
-de retour de la méthode ``find('all')`` de l'objet table Article.
+de retour de la méthode ``find('all')`` de l'objet table Articles.
 
 Pour en apprendre plus sur les controllers de CakePHP, consultez le chapitre
 :doc:`/controllers`.
@@ -108,14 +108,14 @@ qui s'intègrent au sein d'un layout applicatif. Pour la plupart des
 applications, elles sont un mélange de HTML et PHP, mais les vues peuvent aussi
 être constituées de XML, CSV ou même de données binaires.
 
-Les Layouts sont du code de présentation, encapsulé autour d'une vue,
-ils peuvent être définis et interchangés, mais pour le moment,
-utilisons juste celui par défaut.
+Un Layout est un code de présentation, encapsulé autour d'une vue. Ils peuvent
+être définis et interchangés, mais pour le moment, utilisons juste celui par
+défaut.
 
 Vous souvenez-vous, dans la dernière section, comment nous avions assigné
 la variable 'articles' à la vue en utilisant la méthode ``set()`` ?
 Cela devrait transmettre les données à la vue qui ressemblerait à quelque
-chose comme cela::
+chose comme cela ::
 
 Les fichiers des vues de CakePHP sont stockés dans ``/App/Template`` à
 l'intérieur d'un dossier dont le nom correspond à celui du controller (nous
@@ -131,8 +131,8 @@ ressembler à quelque chose comme cela::
     <table>
         <tr>
             <th>Id</th>
-            <th>Title</th>
-            <th>Created</th>
+            <th>Titre</th>
+            <th>Créé le</th>
         </tr>
 
         <!-- Here is where we iterate through our $articles query object, printing out article info -->
@@ -148,8 +148,6 @@ ressembler à quelque chose comme cela::
         </tr>
         <?php endforeach; ?>
     </table>
-
-Bien entendu, cela donnera quelque chose de simple.
 
 Vous avez sans doute remarqué l'utilisation d'un objet appelé ``$this->Html``.
 C'est une instance de la classe CakePHP
@@ -275,6 +273,14 @@ ArticlesController::
 
 .. note::
 
+    ``$this->request->is()`` prend un unique argument, qui peut être la METHOD
+    request (``get``, ``put``, ``post``, ``delete``) ou toute identifier de
+    request (``ajax``). Ce **n'est pas** une façon de vérifier une data postée
+    spécifique. Par exemple, ``$this->request->is('book')`` ne retournera pas
+    true si les data du book ont été postées.
+
+.. note::
+
    Vous avez besoin d'inclure le component Session (SessionComponent) et
    le helper Session (SessionHelper) dans chaque controller où vous voulez
    les utiliser. Si nécessaire, incluez-les dans le controller principal
@@ -316,6 +322,12 @@ L'appel de la méthode ``save()`` vérifiera les erreurs de validation et
 interrompra l'enregistrement si une erreur survient. Nous verrons
 la façon dont les erreurs sont traitées dans les sections suivantes.
 
+Nous appelons la méthode ``create()`` en premier afin
+de réinitialiser l'état du model pour sauvegarder les nouvelles informations.
+Cela ne crée pas réellement un enregistrement dans la base de données mais
+réinitialise Model::$id et définit Model::$data en se basant sur le champ par
+défaut dans votre base de données.
+
 Valider les données
 ===================
 
@@ -340,13 +352,13 @@ Voici le code de notre vue "add" (ajout)
     echo $this->Form->create($article);
     echo $this->Form->input('title');
     echo $this->Form->input('body', ['rows' => '3']);
-    echo $this->Form->submit('Save Article');
+    echo $this->Form->button(__('Save Article'));
     echo $this->Form->end();
     ?>
 
-Nous utilisons ici le :php:class:`FormHelper` pour générer la balise
+Nous utilisons le :php:class:`FormHelper` pour générer la balise
 d'ouverture d'une formulaire HTML. Voici le code HTML généré par
-``$this->Form->create()``::
+``$this->Form->create()`` ::
 
 .. code-block:: html
 
@@ -385,6 +397,7 @@ ajustements::
     namespace App\Model\Table;
 
     use Cake\ORM\Table;
+    use Cake\Validation\Validator;
 
     class ArticlesTable extends Table {
 
@@ -460,7 +473,7 @@ La vue d'édition devrait ressembler à quelque chose comme cela:
     <?= $this->Form->create($article) ?>
     <?= $this->Form->input('title') ?>
     <?= $this->Form->input('body', ['rows' => '3']) ?>
-    <?= $this->Form->submit('Save Article') ?>
+    <?= $this->Form->button(__('Save Article')) ?>
     <?= $this->Form->end() ?>
 
 Cette vue affiche le formulaire d'édition (avec les données pré-remplies) avec
@@ -642,8 +655,8 @@ le reste de ce manuel comme un guide pour développer des applications plus
 riches en fonctionnalités.
 
 Maintenant que vous avez créé une application CakePHP basique, vous êtes prêt
-pour les choses sérieuses. Commencez votre propre projet et lisez le reste
-du `Manuel </index>`_ et de `l'API <http://api.cakephp.org>`_.
+pour les choses sérieuses. Commencez votre propre projet et lisez le reste du
+:doc:`Cookbook </index>` et l'`API <http://api.cakephp.org>`_.
 
 Si vous avez besoin d'aide, il y a plusieurs façons d'obtenir de l'aide -
 merci de regarder la page :doc:`/cakephp-overview/where-to-get-help`

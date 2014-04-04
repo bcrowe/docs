@@ -1,7 +1,7 @@
 TextHelper
 ##########
 
-.. php:class:: TextHelper(View $view, array $settings = array())
+.. php:class:: TextHelper(View $view, array $config = array())
 
 The TextHelper contains methods to make text more usable and
 friendly in your views. It aids in enabling links, formatting URLs,
@@ -25,7 +25,8 @@ truncating long stretches of text.
     to any options defined in ``$htmlOptions`` (see
     :php:meth:`HtmlHelper::link()`).::
 
-        $myText = 'For more information regarding our world-famous pastries and desserts, contact info@example.com';
+        $myText = 'For more information regarding our world-famous ' .
+            'pastries and desserts, contact info@example.com';
         $linkedText = $this->Text->autoLinkEmails($myText);
 
     Output::

@@ -1,7 +1,7 @@
 TimeHelper
 ##########
 
-.. php:class:: TimeHelper(View $view, array $settings = array())
+.. php:class:: TimeHelper(View $view, array $config = array())
 
 The Time Helper does what it says on the tin: saves you time. It
 allows for the quick processing of time related information. The
@@ -32,7 +32,12 @@ modifications to allow your users to set their time zone. Now that we know
 the time zone of the logged in user we can correct the date and time on our
 posts using the Time Helper::
 
-    echo $this->Time->format('F jS, Y h:i A', $post['Post']['created'], null, $user['User']['time_zone']);
+    echo $this->Time->format(
+      'F jS, Y h:i A',
+      $post['Post']['created'],
+      null,
+      $user['User']['time_zone']
+    );
     // Will display August 22nd, 2011 11:53 PM for a user in GMT+0
     // August 22nd, 2011 03:53 PM for a user in GMT-8
     // and August 23rd, 2011 09:53 AM GMT+10

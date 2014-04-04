@@ -1,7 +1,7 @@
 Pagination
 ##########
 
-.. php:class:: PaginatorComponent(ComponentCollection $collection, array $settings = array())
+.. php:class:: PaginatorComponent(ComponentCollection $collection, array $config = array())
 
 Un des principaux obstacles à la création d'une application flexible et
 ergonomique est le design et une interface utilisateur intuitive.
@@ -27,7 +27,7 @@ Paramétrage des requêtes
 
 Dans le controller, nous commençons par définir les conditions de la requête de
 pagination qui seront utilisées par défaut dans la variable ``$paginate`` du
-controller. 
+controller.
 Ces conditions, vont servir de base à vos requêtes de pagination. Elles sont
 complétées par le tri, la direction, la limitation et les paramètres de page
 passés depuis l'URL. Ici, il est important de noter que l'ordre des clés
@@ -103,7 +103,7 @@ supplémentaire est définie dans ``$this->request->params['paging']``, et est
 utilisée par :php:class:`PaginatorHelper` pour la création des liens.
 :php:meth:`PaginatorComponent::paginate()` ajoute aussi
 :php:class:`PaginatorHelper` à la liste des helpers dans votre controller, si
-il n'a pas déjà été ajouté.::
+il n'a pas déjà été ajouté::
 
     public function list_recipes() {
         $this->Paginator->settings = $this->paginate;
@@ -114,12 +114,15 @@ il n'a pas déjà été ajouté.::
     }
 
 Vous pouvez filtrer les enregistrements en passant des conditions
-en second paramètre à la fonction ``paginate()``.::
+en second paramètre à la fonction ``paginate()``::
 
-    $data = $this->Paginator->paginate('Recipe', array('Recipe.title LIKE' => 'a%'));
+    $data = $this->Paginator->paginate(
+        'Recipe',
+        array('Recipe.title LIKE' => 'a%')
+    );
 
 Ou vous pouvez aussi définir des ``conditions`` et d'autres tableaux de
-configuration de pagination à l'intérieur de votre action.::
+configuration de pagination à l'intérieur de votre action::
 
     public function list_recipes() {
         $this->Paginator->settings = array(
@@ -143,11 +146,13 @@ implémenter les signatures de méthode définies ci-dessous avec le premier
 paramètre normal supplémentaire de ``$model``::
 
     // paginate et paginateCount implémentés dans le behavior.
-    public function paginate(Model $model, $conditions, $fields, $order, $limit, $page = 1, $recursive = null, $extra = array()) {
+    public function paginate(Model $model, $conditions, $fields, $order, $limit,
+        $page = 1, $recursive = null, $extra = array()) {
         // contenu de la méthode
     }
 
-    public function paginateCount(Model $model, $conditions = null, $recursive = 0, $extra = array()) {
+    public function paginateCount(Model $model, $conditions = null,
+        $recursive = 0, $extra = array()) {
         // corps (body) de la méthode
     }
 
@@ -175,10 +180,12 @@ dans le model dans lequel vous voulez récupérer des données::
     /**
      * Surcharge de la méthode paginate - groupée par week, away_team_id et home_team_id
      */
-    public function paginate($conditions, $fields, $order, $limit, $page = 1, $recursive = null, $extra = array()) {
+    public function paginate($conditions, $fields, $order, $limit, $page = 1,
+        $recursive = null, $extra = array()) {
         $recursive = -1;
         $group = $fields = array('week', 'away_team_id', 'home_team_id');
-         return $this->find('all', compact('conditions', 'fields', 'order', 'limit', 'page', 'recursive', 'group'));
+         return $this->find('all', compact('conditions', 'fields', 'order',
+             'limit', 'page', 'recursive', 'group'));
     }
 
 Vous aurez aussi besoin de surcharger le ``paginateCount()`` du noyau,
@@ -190,8 +197,15 @@ utilisez::
     /**
      * Surcharge de la méthode paginateCount
      */
-    public function paginateCount($conditions = null, $recursive = 0, $extra = array()) {
-        $sql = "SELECT DISTINCT ON(week, home_team_id, away_team_id) week, home_team_id, away_team_id FROM games";
+    public function paginateCount($conditions = null, $recursive = 0,
+        $extra = array()) {
+         $sql = "SELECT
+            DISTINCT ON(
+                week, home_team_id, away_team_id
+            )
+                week, home_team_id, away_team_id
+            FROM
+                games";
         $this->recursive = $recursive;
         $results = $this->query($sql);
         return count($results);
@@ -213,7 +227,7 @@ faire est d'ajouter le mot clé dans la variable de classe
         )
     );
     /**
-     * Ou à la volée depuis l'intérieur de l'action 
+     * Ou à la volée depuis l'intérieur de l'action
      */
     public function index() {
         $this->Paginator->settings = array(
@@ -236,8 +250,8 @@ Par défaut le classement peut être effectué pour n'importe quelle colonne dan
 un model. C'est parfois indésirable comme permettre aux utilisateurs de trier
 des colonnes non indexées, ou des champs virtuels ce qui peut être coûteux en
 temps de calculs. Vous pouvez utiliser le 3ème paramètre de
-``PaginatorComponent::paginate()`` pour restreindre les tris de colonnes qui
-pourront être effectués::
+``PaginatorComponent::paginate()`` pour restreindre les colonnes à trier
+en faisant ceci::
 
     $this->Paginator->paginate('Post', array(), array('title', 'slug'));
 
@@ -275,7 +289,7 @@ Pour la version 2.0, nous avons décidés de rendre la façon de générer les
 paramètres de pagination plus contrôlable et plus cohérente. Vous pouvez
 choisir d'utiliser une chaîne de requête ou bien des paramètre nommés dans le
 component. Les requêtes entrantes devront accepter le type choisi, et
-:php:class:`PaginatorHelper` générera les liens avec les paramètres choisis:: 
+:php:class:`PaginatorHelper` générera les liens avec les paramètres choisis::
 
     public $paginate = array(
         'paramType' => 'querystring'
@@ -283,7 +297,7 @@ component. Les requêtes entrantes devront accepter le type choisi, et
 
 Ce qui est au-dessus permet à un paramètre de recherche sous forme de chaîne de
 caractères, d'être parsé et d'être généré. Vous pouvez aussi modifier les
-propriétés de ``$settings`` du Component Paginator (PaginatorComponent)::
+propriétés de ``$config`` du Component Paginator (PaginatorComponent)::
 
     $this->Paginator->settings['paramType'] = 'querystring';
 
@@ -295,10 +309,10 @@ arguments GET.
 
     Vous pouvez rentrer dans une situation où assigner une valeur dans une
     propriété inexistante retournera des erreurs::
-    
+
         $this->paginate['limit'] = 10;
 
-    Retournera l'erreur "Notice: Indirect modification of overloaded property 
+    Retournera l'erreur "Notice: Indirect modification of overloaded property
     $paginate has no effect" ("Notice: Une modification indirect d'une surcharge de
     la propriété $paginate n'a aucun effet"). En assignant une valeur initiale à la
     propriété, cela résout le problème::
@@ -315,10 +329,10 @@ arguments GET.
         }
 
     Ou en utilisant ``$this->Paginator->setting = array('limit' => 10);``
-    
+
     Assurez-vous d'avoir ajouté le component Paginator dans votre tableau
-    $components si vous voulez modifier la propriété ``$settings`` du
-    Component Paginator. 
+    $components si vous voulez modifier la propriété ``$config`` du
+    Component Paginator.
 
     L'une ou l'autre de ces approches résoudra les erreurs rencontrés.
 
@@ -342,7 +356,7 @@ quand une exception `NotFoundException` est attrapée::
         }
     }
 
-Pagination AJAX 
+Pagination AJAX
 ===============
 
 C'est très simple d'incorporer les fonctionnalités AJAX dans la pagination.

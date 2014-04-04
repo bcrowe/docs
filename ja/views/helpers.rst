@@ -52,9 +52,9 @@ CakePHPでヘルパーを有効にするにはコントローラに認識させ�
 ヘルパーにはオプションを渡すことが出来ます。このオプションは属性の値を設定したり、ヘルパーの動作を変えるために使うことができます。::
 
     class AwesomeHelper extends AppHelper {
-        public function __construct(View $view, $settings = array()) {
-            parent::__construct($view, $settings);
-            debug($settings);
+        public function __construct(View $view, $config = array()) {
+            parent::__construct($view, $config);
+            debug($config);
         }
     }
 
@@ -128,7 +128,7 @@ HelperCollectionは :doc:`コレクション </core-libraries/collections>` で�
 ヘルパーを作る
 ==============
 
-もし、コアヘルパー(またはgithubやBakeryにあるヘルパー) でやりたいことができなかったとしても、
+もし、コアヘルパー(またはGitHubやBakeryにあるヘルパー) でやりたいことができなかったとしても、
 ヘルパーを作るのは簡単なので大丈夫です。
 
 ここで、アプリケーション内の様々な場所で必要とされるCSSスタイルのリンクを出力するヘルパーを作りたかったとしましょう。

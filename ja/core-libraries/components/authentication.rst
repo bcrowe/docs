@@ -4,7 +4,7 @@
 ..
   Authentication
 
-.. php:class:: AuthComponent(ComponentCollection $collection, array $settings = array())
+.. php:class:: AuthComponent(ComponentCollection $collection, array $config = array())
 
 ユーザを識別し、認証し、権限を付与することは、ほとんどすべてのWebアプリケーションに共通の機能です。
 CakePHP の AuthComponent ではそういったタスクを実行するためのプラガブルな方法を提供します。
@@ -229,7 +229,7 @@ Auth の他の設定キー(authError や loginAction など)を authenticate や
 - ``realm`` realm 認証の認証先。デフォルトはサーバ名。
 - ``nonce`` 認証で使われる nonce。デフォルトは ``uniqid()``。
 - ``qop`` デフォルトは auth。現時点では他の値はサポートされていない。
-- ``opaque`` クライアントから変更されることなく戻されるべき文字列。デフォルトでは ``md5($settings['realm'])``。
+- ``opaque`` クライアントから変更されることなく戻されるべき文字列。デフォルトでは ``md5($config['realm'])``。
 
 ..
   In addition to the common configuration Digest authentication supports the following keys:
@@ -237,7 +237,7 @@ Auth の他の設定キー(authError や loginAction など)を authenticate や
   - ``nonce`` A nonce used for authentication.  Defaults to ``uniqid()``.
   - ``qop`` Defaults to auth, no other values are supported at this time.
   - ``opaque`` A string that must be returned unchanged by clients. Defaults
-    to ``md5($settings['realm'])``
+    to ``md5($config['realm'])``
 
 ユーザの識別とログイン
 -------------------------------------
@@ -673,7 +673,7 @@ Blowfish password hasher は、任意の認証クラスで使用することが�
 抽象メソッドの ``hash()`` と ``check()`` を実装する必要があります。
 ``app/Controller/Component/Auth/CustomPasswordHasher.php`` に次のように記述します::
 
-    App::uses('CustomPasswordHasher', 'Controller/Component/Auth');
+    App::uses('AbstractPasswordHasher', 'Controller/Component/Auth');
 
     class CustomPasswordHasher extends AbstractPasswordHasher {
         public function hash($password) {

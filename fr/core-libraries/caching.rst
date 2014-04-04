@@ -2,7 +2,7 @@ La mise en cache
 ################
 
 La mise en cache est fréquemment utilisée pour réduire le temps pris pour
-créer ou lire depuis une autre ressource. La mise en cache est souvent 
+créer ou lire depuis une autre ressource. La mise en cache est souvent
 utilisée pour rendre la lecture de ressources consommatrices en temps en
 ressources moins consommatrices. Vous pouvez aisément stocker le résultats
 de requêtes consommatrices en ressources, ou des accès à distance a des
@@ -37,6 +37,9 @@ votre propre système de mise en cache. Les moteurs de cache intégrés sont:
 * ``MemcacheEngine`` Utilise l'extension `Memcache <http://php.net/memcache>`_.
   Memcache fournit un cache très rapide qui peut être distribué au travers
   de nombreux serveurs, et fournit les opérations atomiques.
+* ``MemcachedEngine`` Utilise l'extension
+  `Memcached <http://php.net/memcached>`_. Elle est aussi une interface avec
+  memcache mais fournit une meilleur performance.
 * ``RedisEngine`` Utilise l'extension
   `phpredis <https://github.com/nicolasff/phpredis>`_. Redis fournit un système
   de cache cohérent et rapide similaire à memcached, et fournit aussi des
@@ -47,6 +50,9 @@ votre propre système de mise en cache. Les moteurs de cache intégrés sont:
     certain nombre de personnes avait des difficultés à configurer et déployer
     APC correctement dans les deux cli + web. Utiliser les fichiers devrait
     faciliter la configuration de CakePHP pour les nouveaux développeurs.
+
+.. versionchanged:: 2.5
+    Le moteur Memcached a été ajouté. Et le moteur Memecache a été déprécié.
 
 Quelque soit le moteur de cache que vous choisirez d'utiliser, votre
 application interagit avec :php:class:`Cache` de manière cohérente. Cela
@@ -82,18 +88,18 @@ comme vous l'entendez.
 Exemple::
 
     Cache::config('short', array(
-        'engine' => 'File',  
-        'duration' => '+1 hours',  
-        'path' => CACHE,  
+        'engine' => 'File',
+        'duration' => '+1 hours',
+        'path' => CACHE,
         'prefix' => 'cake_short_'
     ));
 
-    // long  
-    Cache::config('long', array(  
-        'engine' => 'File',  
-        'duration' => '+1 week',  
-        'probability' => 100,  
-        'path' => CACHE . 'long' . DS,  
+    // long
+    Cache::config('long', array(
+        'engine' => 'File',
+        'duration' => '+1 week',
+        'probability' => 100,
+        'path' => CACHE . 'long' . DS,
     ));
 
 En insérant le code ci-dessus dans votre ``app/Config/bootstrap.php`` vous
@@ -106,12 +112,6 @@ pour :php:func:`Cache::write()` et :php:func:`Cache::read()`.
     Quand vous utilisez le moteur FileEngine vous pourriez avoir besoin de
     l'option ``mask`` pour vous assurer que les fichiers cachés sont
     créés avec les bonnes permissions.
-
-.. versionadded:: 2.4
-
-    En mode debug, les répertoires manquants vont être maintenant
-    automatiquement créés pour éviter le lancement des erreurs non nécessaires
-    lors de l'utilisation de FileEngine.
 
 Création d'un moteur de stockage pour le Cache
 ==============================================
@@ -161,7 +161,7 @@ L'API requise pour CacheEngine est
 
     Lit une clé depuis le cache. Retourne false pour indiquer
     que l'entrée a expiré ou n'existe pas.
-    
+
 .. php:method:: delete($key)
 
     :retourne: Un booléen true en cas de succès.
@@ -187,13 +187,13 @@ L'API requise pour CacheEngine est
     :retourne: Un boléen true en cas de succès.
 
     Décrémente un nombre dans la clé et retourne la valeur décrémentée
-   
+
 .. php:method:: increment($key, $offset = 1)
 
     :retourne: Un boléen true en cas de succès.
 
     Incrémente un nombre dans la clé et retourne la valeur incrémentée
-   
+
 .. php:method:: gc()
 
     Non requis, mais utilisé pour faire du nettoyage quand les ressources
@@ -211,10 +211,10 @@ Une méthode qui utilise Le Cache pour stocker les résultats pourrait ressemble
 à cela ::
 
     class Post extends AppModel {
-    
+
         public function newest() {
             $result = Cache::read('newest_posts', 'longterm');
-            if (!$result) {
+            if ($result === false) {
                 $result = $this->find('all', array('order' => 'Post.updated DESC', 'limit' => 10));
                 Cache::write('newest_posts', $result, 'longterm');
             }
@@ -225,6 +225,23 @@ Une méthode qui utilise Le Cache pour stocker les résultats pourrait ressemble
 Vous pouvez améliorer le code ci-dessus en déplaçant la lecture du cache
 dans un comportement, qui lit depuis le cache, ou qui exécute les méthodes
 de model. C'est un exercice que vous pouvez faire.
+
+Depuis 2.5, vous pouvez accomplir ce qui est au-dessus de façon bien plus simple
+en utilisant :php:meth:`Cache::remember()`. Utiliser la nouvelle
+méthode ci-dessous ressemblerait à ceci::
+
+    class Post extends AppModel {
+
+        public function newest() {
+            $model = $this;
+            return Cache::remember('newest_posts', function() use ($model){
+                return $model->find('all', array(
+                    'order' => 'Post.updated DESC',
+                    'limit' => 10
+                ));
+            }, 'longterm');
+        }
+    }
 
 Utilisation du Cache pour stocker les compteurs
 ===============================================
@@ -251,7 +268,7 @@ Après avoir défini une valeur entière vous pouvez la manipuler en utilisant
 .. note::
 
     L'incrémentation et la décrémentation ne fonctionne pas avec le moteur
-    FileEngine. Vous devez utiliser APC ou Memcache en remplacement.
+    FileEngine. Vous devez utiliser APC ou Memcached en remplacement.
 
 Utilisation des groupes
 =======================
@@ -282,7 +299,7 @@ Cache de retirer toutes les entrées associées au groupe ``post``::
 
     // Model/Post.php
 
-    public function afterSave($created) {
+    public function afterSave($created, $options = array()) {
         if ($created) {
             Cache::clearGroup('post', 'site_home');
         }
@@ -300,7 +317,7 @@ même groupe::
      * Une variation de l\'exemple précédent qui nettoie toutes les
      * configurations de Cache ayant le même groupe
      */
-    public function afterSave($created) {
+    public function afterSave($created, $options = array()) {
         if ($created) {
             $configs = Cache::groupConfigs('post');
             foreach ($configs['post'] as $config) {
@@ -324,7 +341,7 @@ l'API de Cache
     de Cache et de moteurs peuvent être configurés dans votre
     app/Config/core.php
 
-.. php:staticmethod:: config($name = null, $settings = array())
+.. php:staticmethod:: config($name = null, $config = array())
 
     ``Cache::config()`` est utilisée pour créer des configurations
     de cache supplémentaire. Ces configurations supplémentaires
@@ -352,7 +369,7 @@ l'API de Cache
         // génération des données cloud
         // ...
 
-        // stockage des donnée en cache 
+        // stockage des donnée en cache
         Cache::write('cloud', $cloud);
         return $cloud;
 
@@ -366,7 +383,7 @@ l'API de Cache
     peut stocker n'importe quel type d'objet est est idéal pour
     stocker les résultats des finds de vos modèles.::
 
-   
+
             if (($posts = Cache::read('posts')) === false) {
                 $posts = $this->Post->find('all');
                 Cache::write('posts', $posts);
@@ -380,8 +397,8 @@ l'API de Cache
 
     ``Cache::delete()`` vous permet d'enlever complètement un objet en cache
     du lieu de stockage.
-    
-.. php:staticmethod:: set($settings = array(), $value = null, $config = 'default')
+
+.. php:staticmethod:: set($config = array(), $value = null, $config = 'default')
 
     ``Cache::set()`` vous permet de réécrire temporairement les paramètres
     de configs pour une opération (habituellement une lecture ou écriture).
@@ -389,12 +406,12 @@ l'API de Cache
     écriture, vous devez aussi utiliser ``Cache::set()`` avant de lire les
     données en retour. Si vous ne faites pas cela, les paramètres par défaut
     seront utilisés quand la clé de cache est lu.::
-   
+
         Cache::set(array('duration' => '+30 days'));
         Cache::write('results', $data);
-    
+
         // plus tard
-    
+
         Cache::set(array('duration' => '+30 days'));
         $results = Cache::read('results');
 
@@ -406,7 +423,7 @@ l'API de Cache
 
     Incrémente de manière atomique une valeur stockée dans le moteur de cache.
     Idéal pour modifier un compteur ou des valeurs de sémaphore.
-   
+
 .. php:staticmethod:: decrement($key, $offset = 1, $config = 'default')
 
     Décrémente de manière atomique une valeur stockée dans le moteur de cache.
@@ -414,8 +431,8 @@ l'API de Cache
 
 .. php:staticmethod:: clear($check, $config = 'default')
 
-    Détruit toutes les valeurs en cache pour une configuration de cache. Dans 
-    les moteurs comme Apc, Memcache et Wincache le préfixe de configuration de 
+    Détruit toutes les valeurs en cache pour une configuration de cache. Dans
+    les moteurs comme Apc, Memcache et Wincache le préfixe de configuration de
     cache est utilisé pour enlever les entrées de cache.
     Soyez sûre que différentes configuration de cache ont différent préfixe.
 
@@ -431,12 +448,35 @@ l'API de Cache
     principalement par FileEngine. Il devrait être mis en œuvre par n'importe
     quel moteur de cache qui requiert des évictions manuelles de données en
     cache.
-    
+
 .. php:staticmethod:: groupConfigs($group = null)
 
     :return: Tableau de groups et leurs noms de configuration liés.
 
-    Récupère les noms de group pour configurer la coorespondance.
+    Récupère les noms de group pour configurer la correspondance.
+
+.. php:staticmethod:: remember($key, $callable, $config = 'default')
+
+    Fournit une manière facile pour faire la lecture à travers la mise en cache.
+    Si la clé cache existe, elle sera retournée. Si la clé n'existe pas, la
+    callable sera invoquée et les résultats stockés dans le cache au niveau de
+    la clé fournie.
+
+    Par exemple, vous voulez souvent mettre en cache les résultats de requête.
+    Vous pouvez utiliser ``remember()`` pour faciliter ceci. En estimant
+    que vous utilisiez PHP5.3 ou supérieur::
+
+        class Articles extends AppModel {
+            function all() {
+                $model = $this;
+                return Cache::remember('all_articles', function() use ($model){
+                    return $model->find('all');
+                });
+            }
+        }
+
+    .. versionadded:: 2.5
+        remember() a été ajoutée dans 2.5.
 
 .. meta::
     :title lang=fr: Mise en cache

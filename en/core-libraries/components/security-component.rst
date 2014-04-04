@@ -1,7 +1,7 @@
 Security
 ########
 
-.. php:class:: SecurityComponent(ComponentCollection $collection, array $settings = array())
+.. php:class:: SecurityComponent(ComponentCollection $collection, array $config = array())
 
 The Security Component creates an easy way to integrate tighter
 security in your application. It provides methods for various tasks like:
@@ -15,11 +15,13 @@ Like all components it is configured through several configurable parameters.
 All of these properties can be set directly or through setter methods of the
 same name in your controller's beforeFilter.
 
-By using the Security Component you automatically get
+By using the Security Component you automatically get `CSRF
+<http://en.wikipedia.org/wiki/Cross-site_request_forgery>`_ and
 form tampering protection. Hidden token fields will
 automatically be inserted into forms and checked by the Security
-component. Among other things, a form submission will not be
-accepted if form fields have been modified.
+component. Among other things, a form submission will not be accepted after a
+certain period of inactivity, which is controlled by the
+``csrfExpires`` time.
 
 If you are using Security component's form protection features and
 other components that process form data in their ``startup()``
@@ -45,7 +47,7 @@ Handling Blackhole Callbacks
 If an action is restricted by the Security Component it is
 black-holed as an invalid request which will result in a 400 error
 by default. You can configure this behavior by setting the
-``$this->Security->blackHoleCallback`` property to a callback function
+``blackHoleCallback`` configuration option to a callback function
 in the controller.
 
 .. php:method:: blackHole(object $controller, string $error)
@@ -55,14 +57,12 @@ in the controller.
     controller callback is set to SecurityComponent::blackHoleCallback,
     it will be called and passed any error information.
 
-.. php:attr:: blackHoleCallback
-
     A Controller callback that will handle and requests that are
     blackholed. A blackhole callback can be any public method on a controllers.
     The callback should expect an parameter indicating the type of error::
 
         public function beforeFilter() {
-            $this->Security->blackHoleCallback = 'blackhole';
+            $this->Security->config('blackHoleCallback', 'blackhole');
         }
 
         public function blackhole($type) {
@@ -93,26 +93,39 @@ Restrict Actions to SSL
 Restricting Cross Controller Communication
 ==========================================
 
-.. php:attr:: allowedControllers
-
+allowedControllers
     A List of Controller from which the actions of the current
     controller are allowed to receive requests from. This can be used
     to control cross controller requests.
-
-.. php:attr:: allowedActions
-
+allowedActions
     Actions from which actions of the current controller are allowed to
     receive requests. This can be used to control cross controller
     requests.
 
+These configuration options allow you to restrict cross controller
+communication. Set them with the ``config()`` method.
+
 Form Tampering Prevention
 =========================
 
-By default ``SecurityComponent`` prevents users from tampering with forms. It
-does this by working with FormHelper and tracking which files are in a form. It
-also keeps track of the values of hidden input elements. All of this data is
-combined and turned into a hash. When a form is submitted, SecurityComponent
-will use the POST data to build the same structure and compare the hash.
+By default ``SecurityComponent`` prevents users from tampering with forms in
+specific ways. The ``SecurityComponent`` will prevent the following things:
+
+* Unknown fields cannot be added to the form.
+* Fields cannot be removed from the form.
+* Values in hidden inputs cannot be modified.
+
+Preventing these forms of tampering is accomplished by working with FormHelper
+and tracking which fields are in a form. The values for hidden fields are
+tracked as well. All of this data is combined and turned into a hash. When
+a form is submitted, SecurityComponent will use the POST data to build the same
+structure and compare the hash.
+
+
+.. note::
+
+    SecurityComponent will **not** prevent select options from being
+    added/changed. Nor will it prevent radio options from being added/changed.
 
 .. php:attr:: unlockedFields
 
@@ -201,7 +214,8 @@ Disabling Security Component for Specific Actions
 
 There may be cases where you want to disable all security checks for an action (ex. AJAX requests).
 You may "unlock" these actions by listing them in ``$this->Security->unlockedActions`` in your
-``beforeFilter``.
+``beforeFilter``. The ``unlockedActions`` property will **not** effect other
+features of ``SecurityComponent``.
 
 .. versionadded:: 2.3
 

@@ -1,12 +1,12 @@
 TextHelper
 ##########
 
-.. php:class:: TextHelper(View $view, array $settings = array())
+.. php:class:: TextHelper(View $view, array $config = array())
 
 TextHelper possède des méthodes pour rendre le texte plus utilisable et sympa
 dans vos vues. Il aide à activer les liens, à formater les URLs, à créer
 des extraits de texte autour des mots ou des phrases choisies, mettant en
-évidence des mots clés dans des blocs de texte et tronquer élegamment de 
+évidence des mots clés dans des blocs de texte et tronquer élegamment de
 longues étendues de texte.
 
 .. versionchanged:: 2.1
@@ -26,8 +26,9 @@ longues étendues de texte.
     les options définies dans ``$htmlOptions`` (regardez
     :php:meth:`HtmlHelper::link()`).::
 
-        $my_text = 'Pour plus d'informations sur nos pâtes et desserts fameux, contactez info@example.com';
-        $linked_text = $this->Text->autoLinkEmails($my_text);
+        $myText = 'Pour plus d'informations sur nos pâtes et desserts fameux,
+            contactez info@example.com';
+        $linkedText = $this->Text->autoLinkEmails($myText);
 
     Sortie::
 
