@@ -21,7 +21,7 @@ Before running bake you should make sure you have at least one database
 connection configured. See the section on :ref:`database configuration
 <database-configuration>` for more information.
 
-When run with no arguments ``Console/cake bake`` will output a list of available
+When run with no arguments ``./Console/cake bake`` will output a list of available
 tasks. You should see something like::
 
     ---------------------------------------------------------------
@@ -43,12 +43,12 @@ tasks. You should see something like::
     test
     view
 
-    By using Console/cake bake [name] you can invoke a specific bake task.
+    By using ./Console/cake bake [name] you can invoke a specific bake task.
 
 You can get more information on what each task does, and what options are
 availble using the ``--help`` option::
 
-    $ Console/cake bake model --help
+    $ ./Console/cake bake model --help
 
 Create New Tasks for Bake
 =========================
@@ -108,8 +108,8 @@ the following content::
         }
     }
 
-You should now see your new task in the output of ``Console/cake bake``. You can
-run your new task by running ``Console/cake bake shell Example --theme app``.
+You should now see your new task in the output of ``./Console/cake bake``. You can
+run your new task by running ``./Console/cake bake shell Example --theme app``.
 This will generate a new ``ExampleShell`` class for your application to use.
 
 Modify Default HTML/Code Produced by bake

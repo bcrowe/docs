@@ -196,7 +196,7 @@ at least these fields::
 You can also use the schema shell to create this table using the schema file
 provided in the default app skeleton::
 
-    $ Console/cake schema create sessions
+    $ ./Console/cake schema create sessions
 
 Cache Sessions
 --------------

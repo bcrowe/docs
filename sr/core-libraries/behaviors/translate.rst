@@ -20,7 +20,7 @@ happen that the layout changes in future versions of CakePHP.
 Sticking to the console will make sure that you have the correct
 layout.::
 
-    ./cake i18n
+    Console/cake i18n
 
 Select ``[I]`` which will run the i18n database initialization
 script. You will be asked if you want to drop any existing and if

@@ -98,7 +98,7 @@ This method is called when a shell is called with no additional commands. We'll 
 some more commands in a bit, but for now let's just run our shell. From your application
 directory, run::
 
-    Console/cake hello
+    ./Console/cake hello
 
 You should see the following output::
 
@@ -133,7 +133,7 @@ interesting let's add another command that does something::
         }
     }
 
-After saving this file you should be able to run ``Console/cake hello hey_there your-name``
+After saving this file you should be able to run ``./Console/cake hello hey_there your-name``
 and see your name printed out. Any public method not prefixed by an ``_`` is allowed to be
 called from the command line. In our ``hey_there`` method we also used ``$this->args``, this
 property contains an array of all the positional arguments provided to a command. You can

@@ -1297,7 +1297,7 @@ Add another *shell script step* to your build. In this step run the tests for
 your application. Creating a junit log file, or clover coverage is often a nice
 bonus, as it gives you a nice graphical view of your testing results::
 
-    app/Console/cake test app AllTests \
+    app/./Console/cake test app AllTests \
     --stderr \
     --log-junit junit.xml \
     --coverage-clover clover.xml
